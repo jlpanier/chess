@@ -1,0 +1,54 @@
+﻿<ContentPage
+    x:Class="Chess.Pages.MainPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:viewModels="clr-namespace:Chess.ViewModels">
+
+    <ContentPage.BindingContext>
+        <viewModels:MainViewModel />
+    </ContentPage.BindingContext>
+
+    <Grid RowDefinitions="Auto, *">
+        <Label Text="{Binding StatusText}"
+               Margin="10"
+               FontAttributes="Bold" />
+
+        <CollectionView Grid.Row="1"
+                        ItemsSource="{Binding Squares}"
+                        SelectionMode="None">
+            <CollectionView.ItemsLayout>
+                <GridItemsLayout Orientation="Vertical"
+                                 Span="8" />
+            </CollectionView.ItemsLayout>
+
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <Grid.Triggers>
+                            <DataTrigger TargetType="Grid"
+                                         Binding="{Binding Index}"
+                                         Value="0">
+                                <!-- optional style trigger -->
+                            </DataTrigger>
+                        </Grid.Triggers>
+
+                        <Border StrokeThickness="0"
+                                BackgroundColor="{Binding Index, Converter={StaticResource SquareColorConverter}}">
+                            <Grid>
+                                <Label Text="{Binding PieceSymbol}"
+                                       FontSize="32"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center" />
+                                <Grid.GestureRecognizers>
+                                    <TapGestureRecognizer
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.SquareTappedCommand}"
+                                        CommandParameter="{Binding .}" />
+                                </Grid.GestureRecognizers>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </Grid>
+</ContentPage>
