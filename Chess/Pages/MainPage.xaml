@@ -15,8 +15,12 @@
     </ContentPage.BindingContext>
 
 
-    <Grid RowDefinitions="Auto, Auto" >
+    <Grid RowDefinitions="*, Auto, *" >
 
+        <Grid Grid.Row="0">
+            <Image Source="background.jpg" Aspect="AspectFill" />
+        </Grid>
+        
         <Grid Grid.Row="1"  >
 
             <!-- Fond bois -->
@@ -108,5 +112,10 @@
                 </Border>
             </Border>
         </Grid>
+
+        <Grid Grid.Row="2">
+            <Image Source="background.jpg" Aspect="AspectFill" />
+        </Grid>
+
     </Grid>
 </ContentPage>
