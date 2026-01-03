@@ -2,53 +2,120 @@
     x:Class="Chess.Pages.MainPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:converter="clr-namespace:Chess.Converter"
     xmlns:viewModels="clr-namespace:Chess.ViewModels">
 
+    <ContentPage.Resources>
+        <converter:SquareColorConverter x:Key="SquareColorConverter"/>
+        <converter:SquareHighlightConverter x:Key="SquareHighlightConverter"/>
+    </ContentPage.Resources>
+    
     <ContentPage.BindingContext>
         <viewModels:MainViewModel />
     </ContentPage.BindingContext>
 
-    <Grid RowDefinitions="Auto, *">
-        <Label Text="{Binding StatusText}"
-               Margin="10"
-               FontAttributes="Bold" />
 
-        <CollectionView Grid.Row="1"
+    <Grid RowDefinitions="*, Auto, *" >
+
+        <Grid Grid.Row="0">
+            <Image Source="background.jpg" Aspect="AspectFill" />
+        </Grid>
+        
+        <Grid Grid.Row="1"  >
+
+            <!-- Fond bois -->
+            <Image Source="background.jpg" Aspect="AspectFill" />
+
+            <!-- Plateau avec bordure -->
+            <Border Stroke="Brown"
+                StrokeThickness="6"
+                StrokeShape="Rectangle"
+                Background="#D8C3A5"   
+                Padding="10"
+                Margin="20">
+
+                <Border.Shadow>
+                    <Shadow Brush="Black"
+                        Opacity="0.4"
+                        Offset="10,10"
+                        Radius="20" />
+                </Border.Shadow>
+
+                <Border Stroke="White"
+                    StrokeThickness="4"
+                    StrokeShape="Rectangle"
+                    Background="#D8C3A5"   
+                    Padding="4">
+
+                    <CollectionView 
+                        Grid.Row="1"
                         ItemsSource="{Binding Squares}"
+                        ItemSizingStrategy="MeasureAllItems"
                         SelectionMode="None">
-            <CollectionView.ItemsLayout>
-                <GridItemsLayout Orientation="Vertical"
-                                 Span="8" />
-            </CollectionView.ItemsLayout>
 
-            <CollectionView.ItemTemplate>
-                <DataTemplate>
-                    <Grid>
-                        <Grid.Triggers>
-                            <DataTrigger TargetType="Grid"
-                                         Binding="{Binding Index}"
-                                         Value="0">
-                                <!-- optional style trigger -->
-                            </DataTrigger>
-                        </Grid.Triggers>
+                        <CollectionView.ItemsLayout>
+                            <GridItemsLayout Orientation="Vertical" Span="8" HorizontalItemSpacing="1" VerticalItemSpacing="0"/>
+                        </CollectionView.ItemsLayout>
 
-                        <Border StrokeThickness="0"
-                                BackgroundColor="{Binding Index, Converter={StaticResource SquareColorConverter}}">
-                            <Grid>
-                                <Label Text="{Binding PieceSymbol}"
-                                       FontSize="32"
-                                       HorizontalOptions="Center"
-                                       VerticalOptions="Center" />
-                                <Grid.GestureRecognizers>
-                                    <TapGestureRecognizer
-                                        Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.SquareTappedCommand}"
-                                        CommandParameter="{Binding .}" />
-                                </Grid.GestureRecognizers>
-                            </Grid>
-                        </Border>
-                    </Grid>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid>
+
+                                    <Border 
+                                        StrokeThickness="0"
+                                        StrokeShape="Rectangle"
+                                        WidthRequest="50"
+                                        HeightRequest="50"
+                                        Margin="0"
+                                        Padding="0"
+                                        Background="{Binding Index, Converter={StaticResource SquareColorConverter}}"
+                                        HorizontalOptions="Fill"
+                                        VerticalOptions="Fill">
+
+                                        <Label 
+                                            Text="{Binding PieceSymbol}"
+                                            LineHeight="0.85"
+                                            FontFamily="ChessMerida"
+                                            FontSize="36"
+                                            TextColor="{Binding PieceColor}"
+                                            HorizontalOptions="Center"
+                                            VerticalOptions="Center" >
+                                            <Label.Shadow>
+                                                <Shadow 
+                                                    Brush="Black"
+                                                    Offset="1,1"
+                                                    Radius="2"
+                                                    Opacity="0.8" />
+                                            </Label.Shadow>
+
+                                        </Label>
+
+                                    </Border>
+
+                                    <!-- Highlight overlay -->
+                                    <Border 
+                                        Background="{Binding IsSelected, Converter={StaticResource SquareHighlightConverter}}"
+                                        InputTransparent="True" />
+
+                                    <Grid.GestureRecognizers>
+                                        <TapGestureRecognizer
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.SquareTappedCommand}"
+                                            CommandParameter="{Binding .}" />
+                                    </Grid.GestureRecognizers>
+
+                                </Grid>
+
+                            </DataTemplate>
+
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </Border>
+            </Border>
+        </Grid>
+
+        <Grid Grid.Row="2">
+            <Image Source="background.jpg" Aspect="AspectFill" />
+        </Grid>
+
     </Grid>
 </ContentPage>
