@@ -51,9 +51,12 @@
 		<MauiIcon Include="Resources\AppIcon\icon.png" BaseSize="225,225">
 		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</MauiIcon>
+		<MauiIcon Include="Resources\Splash\splash.png">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		  <BaseSize>225,225</BaseSize>
+		</MauiIcon>
 
 		<!-- Splash Screen -->
-		<MauiSplashScreen Include="Resources\Splash\splash.png" Color="#17171a" />
 
 		<!-- Images -->
 		<MauiImage Include="Resources\Images\*" />
