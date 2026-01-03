@@ -1,27 +1,19 @@
 ﻿using Business;
-using Chess.Interfaces;
-using Chess.Pages;
-using Common;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using DevExpress.Maui.Core.Internal;
-using DevExpress.Maui.Mvvm;
-using FFImageLoading.Helpers;
-using Repository.Dbo;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 
 namespace Chess.ViewModels
 {
     public partial class MainViewModel : ObservableObject
     {
+
         private readonly Board _board;
 
-        public ObservableCollection<BoardSquareViewModel> Squares { get; } =
-            new ObservableCollection<BoardSquareViewModel>();
+        [ObservableProperty]
+        public ObservableCollection<BoardSquareViewModel> squares;
 
         [ObservableProperty] bool whiteToMove;
-        [ObservableProperty] string statusText;
 
         private int? _selectedIndex;
         private List<Move> _currentLegalMoves = new();
@@ -29,14 +21,47 @@ namespace Chess.ViewModels
         public MainViewModel()
         {
             _board = new Board();
-            InitSquares();
-            NewGame();
+            Squares = new ObservableCollection<BoardSquareViewModel>();
+            for (int i = 0; i < 64; i++)
+                Squares.Add(new BoardSquareViewModel 
+                { 
+                    Index = i,
+                    PieceSymbol= GetInitialPiece(i),
+                    IsWhitePiece= i > 32
+                });
         }
-        public MainViewModel(Board board)
+
+        [RelayCommand]
+        private void OnSquareTapped(BoardSquareViewModel square)
         {
-            _board = board;
-            InitSquares();
-            NewGame();
+            // Clear previous selection
+            foreach (var sq in Squares)
+                sq.IsSelected = false;
+
+            // Select the tapped one
+            square.IsSelected = true;
+        }
+
+        private string GetInitialPiece(int index)
+        {
+            // Black pieces
+            string[] backRank = { "♜", "♞", "♝", "♛", "♚", "♝", "♞", "♜" };
+
+            int row = index / 8;
+            int col = index % 8;
+
+            return row switch
+            {
+                0 => backRank[col],   // black major pieces
+                1 => "♟",             // black pawns
+                6 => "♙",             // white pawns
+                7 => backRank[col].Replace('♜', '♖')
+                                   .Replace('♞', '♘')
+                                   .Replace('♝', '♗')
+                                   .Replace('♛', '♕')
+                                   .Replace('♚', '♔'), // white major pieces
+                _ => ""
+            };
         }
 
         void InitSquares()
@@ -48,23 +73,9 @@ namespace Chess.ViewModels
         [RelayCommand]
         void NewGame()
         {
-            _board.SetupInitialPosition();
+            //_board.SetupInitialPosition();
             whiteToMove = true;
-            RefreshSquares();
-            statusText = "New game started";
-        }
-
-        [RelayCommand]
-        void SquareTapped(BoardSquareViewModel square)
-        {
-            if (_selectedIndex == null)
-            {
-                SelectFrom(square);
-            }
-            else
-            {
-                TryMoveTo(square);
-            }
+            //RefreshSquares();
         }
 
         void SelectFrom(BoardSquareViewModel square)
@@ -101,7 +112,6 @@ namespace Chess.ViewModels
                 var piece = _board.GetPiece(i);
                 var vm = Squares[i];
                 vm.PieceSymbol = PieceToSymbol(piece);
-                vm.IsHighlighted = false;
                 vm.IsSelected = false;
             }
         }
@@ -111,7 +121,6 @@ namespace Chess.ViewModels
             foreach (var s in Squares)
             {
                 s.IsSelected = (s.Index == _selectedIndex);
-                s.IsHighlighted = _currentLegalMoves.Any(m => m.To == s.Index);
             }
         }
 
@@ -122,7 +131,6 @@ namespace Chess.ViewModels
             foreach (var s in Squares)
             {
                 s.IsSelected = false;
-                s.IsHighlighted = false;
             }
         }
 
