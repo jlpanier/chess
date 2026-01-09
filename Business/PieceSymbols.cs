@@ -9,7 +9,7 @@ namespace Business
 {
     public static class PieceSymbols
     {
-        public static string ToSymbol(Piece piece)
+        public static string ToSymbol(Piece? piece)
         {
             return piece switch
             {

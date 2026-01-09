@@ -1,4 +1,5 @@
 ﻿<ContentPage
+    x:Name="RootPage"
     x:Class="Chess.Pages.MainPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
@@ -13,7 +14,6 @@
     <ContentPage.BindingContext>
         <viewModels:MainViewModel />
     </ContentPage.BindingContext>
-
 
     <Grid RowDefinitions="*, Auto, *" >
 
@@ -58,7 +58,7 @@
                         </CollectionView.ItemsLayout>
 
                         <CollectionView.ItemTemplate>
-                            <DataTemplate>
+                            <DataTemplate x:DataType="viewModels:SquareViewModel">
                                 <Grid>
 
                                     <Border 
@@ -96,12 +96,6 @@
                                     <Border 
                                         Background="{Binding IsSelected, Converter={StaticResource SquareHighlightConverter}}"
                                         InputTransparent="True" />
-
-                                    <Grid.GestureRecognizers>
-                                        <TapGestureRecognizer
-                                            Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.SquareTappedCommand}"
-                                            CommandParameter="{Binding .}" />
-                                    </Grid.GestureRecognizers>
 
                                 </Grid>
 

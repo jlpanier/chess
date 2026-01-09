@@ -1,12 +1,11 @@
 ﻿using Chess.ViewModels;
-using Repository.Dbo;
+using System.Windows.Input;
 
 namespace Chess.Pages
 {
     public partial class MainPage : ContentPage
     {
-
-        public MainPage()
+         public MainPage()
         {
             InitializeComponent();
             AppShell.SetNavBarIsVisible(this, false);
@@ -19,5 +18,17 @@ namespace Chess.Pages
             AppShell.SetNavBarIsVisible(this, false);
         }
 
+        /// <summary>
+        /// customize behavior immediately prior to the page becoming visible.
+        /// </summary>
+        protected override async void OnAppearing()
+        {
+            base.OnAppearing();
+
+            if (BindingContext is MainViewModel vm)
+            {
+                vm.NewGame();
+            }
+        }
     }
 }
