@@ -17,7 +17,20 @@ namespace Chess.ViewModels
         public MainViewModel()
         {
             _board = new Board();
-            squares = new ObservableCollection<SquareViewModel>();
+        }
+
+        /// <summary>
+        /// Commande exécutée lorsqu'une case est tapée.
+        /// </summary>
+        [RelayCommand]
+        private void SquareTapped(SquareViewModel item)
+        {
+            // Exemple simple : sélectionne la case
+            item.Selected();
+
+            // Si tu veux désélectionner les autres cases :
+            // foreach (var sq in Squares)
+            //     if (sq != item) sq.Unselected();
         }
 
         /// <summary>

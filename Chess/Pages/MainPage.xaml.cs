@@ -30,5 +30,13 @@ namespace Chess.Pages
                 vm.NewGame();
             }
         }
+
+        //private void OnBoardContainerSizeChanged(object sender, EventArgs e)
+        //{
+        //    var size = Math.Min(BoardContainer.Width, BoardContainer.Height);
+        //    BoardContainer.WidthRequest = size;
+        //    BoardContainer.HeightRequest = size;
+        //}
+
     }
 }

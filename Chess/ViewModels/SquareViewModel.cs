@@ -40,7 +40,17 @@ namespace Chess.ViewModels
 
         public bool HasPiece => Square.Piece != null;
 
-        public Color PieceColor => HasPiece ? Colors.White : Colors.Black;
+        public Color PieceColor
+        {
+            get
+            {
+                if (Square.Piece != null)
+                {
+                    return Square.Piece.IsWhite ? Colors.White : Colors.Black;
+                }
+                return Colors.Black;
+            }
+        }
 
         public string PieceSymbol => PieceSymbols.ToSymbol(Square?.Piece);
 
