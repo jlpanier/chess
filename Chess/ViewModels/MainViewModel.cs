@@ -12,9 +12,13 @@ namespace Chess.ViewModels
         private readonly Board _board;
 
         [ObservableProperty]
+#pragma warning disable MVVMTK0042 // Prefer using [ObservableProperty] on partial properties
         public ObservableCollection<SquareViewModel> squares;
+#pragma warning restore MVVMTK0042 // Prefer using [ObservableProperty] on partial properties
 
+#pragma warning disable CS8618 // Un champ non-nullable doit contenir une valeur autre que Null lors de la fermeture du constructeur. Envisagez d’ajouter le modificateur « required » ou de déclarer le champ comme pouvant accepter la valeur Null.
         public MainViewModel()
+#pragma warning restore CS8618 // Un champ non-nullable doit contenir une valeur autre que Null lors de la fermeture du constructeur. Envisagez d’ajouter le modificateur « required » ou de déclarer le champ comme pouvant accepter la valeur Null.
         {
             _board = new Board();
         }
@@ -40,6 +44,7 @@ namespace Chess.ViewModels
         {
             _board.NewGame();
             var items = new List<SquareViewModel>();
+            if(_board.Squares == null) return;
             foreach (var square in _board.Squares)
             {
                 items.Add(new SquareViewModel(_board, square));
