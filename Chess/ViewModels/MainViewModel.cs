@@ -1,145 +1,55 @@
 ﻿using Business;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using DevExpress.Maui.Mvvm;
 using System.Collections.ObjectModel;
+using System.Windows.Input;
 
 namespace Chess.ViewModels
 {
     public partial class MainViewModel : ObservableObject
     {
-
         private readonly Board _board;
 
         [ObservableProperty]
-        public ObservableCollection<BoardSquareViewModel> squares;
+#pragma warning disable MVVMTK0042 // Prefer using [ObservableProperty] on partial properties
+        public ObservableCollection<SquareViewModel> squares;
+#pragma warning restore MVVMTK0042 // Prefer using [ObservableProperty] on partial properties
 
-        [ObservableProperty] bool whiteToMove;
-
-        private int? _selectedIndex;
-        private List<Move> _currentLegalMoves = new();
-
+#pragma warning disable CS8618 // Un champ non-nullable doit contenir une valeur autre que Null lors de la fermeture du constructeur. Envisagez d’ajouter le modificateur « required » ou de déclarer le champ comme pouvant accepter la valeur Null.
         public MainViewModel()
+#pragma warning restore CS8618 // Un champ non-nullable doit contenir une valeur autre que Null lors de la fermeture du constructeur. Envisagez d’ajouter le modificateur « required » ou de déclarer le champ comme pouvant accepter la valeur Null.
         {
             _board = new Board();
-            Squares = new ObservableCollection<BoardSquareViewModel>();
-            for (int i = 0; i < 64; i++)
-                Squares.Add(new BoardSquareViewModel 
-                { 
-                    Index = i,
-                    PieceSymbol= GetInitialPiece(i),
-                    IsWhitePiece= i > 32
-                });
         }
 
+        /// <summary>
+        /// Commande exécutée lorsqu'une case est tapée.
+        /// </summary>
         [RelayCommand]
-        private void OnSquareTapped(BoardSquareViewModel square)
+        private void SquareTapped(SquareViewModel item)
         {
-            // Clear previous selection
-            foreach (var sq in Squares)
-                sq.IsSelected = false;
+            // Exemple simple : sélectionne la case
+            item.Selected();
 
-            // Select the tapped one
-            square.IsSelected = true;
+            // Si tu veux désélectionner les autres cases :
+            // foreach (var sq in Squares)
+            //     if (sq != item) sq.Unselected();
         }
 
-        private string GetInitialPiece(int index)
+        /// <summary>
+        /// Initialisation du jeux - Squares
+        /// </summary>
+        public void NewGame()
         {
-            // Black pieces
-            string[] backRank = { "♜", "♞", "♝", "♛", "♚", "♝", "♞", "♜" };
-
-            int row = index / 8;
-            int col = index % 8;
-
-            return row switch
+            _board.NewGame();
+            var items = new List<SquareViewModel>();
+            if(_board.Squares == null) return;
+            foreach (var square in _board.Squares)
             {
-                0 => backRank[col],   // black major pieces
-                1 => "♟",             // black pawns
-                6 => "♙",             // white pawns
-                7 => backRank[col].Replace('♜', '♖')
-                                   .Replace('♞', '♘')
-                                   .Replace('♝', '♗')
-                                   .Replace('♛', '♕')
-                                   .Replace('♚', '♔'), // white major pieces
-                _ => ""
-            };
-        }
-
-        void InitSquares()
-        {
-            for (int i = 0; i < 64; i++)
-                Squares.Add(new BoardSquareViewModel { Index = i });
-        }
-
-        [RelayCommand]
-        void NewGame()
-        {
-            //_board.SetupInitialPosition();
-            whiteToMove = true;
-            //RefreshSquares();
-        }
-
-        void SelectFrom(BoardSquareViewModel square)
-        {
-            var piece = _board.GetPiece(square.Index);
-            //if (piece is null || piece.Color != (whiteToMove ? Color.White : Color.Black))
-            //    return;
-
-            _selectedIndex = square.Index;
-            _currentLegalMoves = _board.GetLegalMoves(square.Index).ToList();
-            HighlightSelection();
-        }
-
-        void TryMoveTo(BoardSquareViewModel target)
-        {
-            var move = _currentLegalMoves.FirstOrDefault(m => m.To == target.Index);
-            if (move is null)
-            {
-                ClearSelection();
-                return;
+                items.Add(new SquareViewModel(_board, square));
             }
-
-            _board.ApplyMove(move);
-            whiteToMove = !whiteToMove;
-            RefreshSquares();
-            ClearSelection();
-            UpdateStatus();
-        }
-
-        void RefreshSquares()
-        {
-            for (int i = 0; i < 64; i++)
-            {
-                var piece = _board.GetPiece(i);
-                var vm = Squares[i];
-                vm.PieceSymbol = PieceToSymbol(piece);
-                vm.IsSelected = false;
-            }
-        }
-
-        void HighlightSelection()
-        {
-            foreach (var s in Squares)
-            {
-                s.IsSelected = (s.Index == _selectedIndex);
-            }
-        }
-
-        void ClearSelection()
-        {
-            _selectedIndex = null;
-            _currentLegalMoves.Clear();
-            foreach (var s in Squares)
-            {
-                s.IsSelected = false;
-            }
-        }
-
-        string? PieceToSymbol(Piece? piece)=> PieceSymbols.ToSymbol(piece);
-
-        void UpdateStatus()
-        {
-            // check / checkmate / stalemate text
+            Squares = new ObservableCollection<SquareViewModel>(items);
         }
     }
-
 }

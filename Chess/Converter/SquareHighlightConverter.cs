@@ -9,16 +9,15 @@ namespace Chess.Converter
 {
     public class SquareHighlightConverter : IValueConverter
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
-            bool isSelected = (bool)value;
-
+            bool isSelected = value is bool val ? val : false;
             return isSelected
                 ? new SolidColorBrush(Colors.Yellow.WithAlpha(0.4f))  // highlight overlay
                 : Colors.Transparent;
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
             => throw new NotImplementedException();
     }
 

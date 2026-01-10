@@ -1,5 +1,7 @@
 ﻿<ContentPage
+    x:Name="RootPage"
     x:Class="Chess.Pages.MainPage"
+    x:DataType="viewModels:MainViewModel"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:converter="clr-namespace:Chess.Converter"
@@ -13,7 +15,6 @@
     <ContentPage.BindingContext>
         <viewModels:MainViewModel />
     </ContentPage.BindingContext>
-
 
     <Grid RowDefinitions="*, Auto, *" >
 
@@ -58,7 +59,7 @@
                         </CollectionView.ItemsLayout>
 
                         <CollectionView.ItemTemplate>
-                            <DataTemplate>
+                            <DataTemplate x:DataType="viewModels:SquareViewModel">
                                 <Grid>
 
                                     <Border 
@@ -66,42 +67,49 @@
                                         StrokeShape="Rectangle"
                                         WidthRequest="50"
                                         HeightRequest="50"
-                                        Margin="0"
-                                        Padding="0"
+                                        Margin="0,0,0,0"
+                                        Padding="0,0,0,0"
                                         Background="{Binding Index, Converter={StaticResource SquareColorConverter}}"
                                         HorizontalOptions="Fill"
                                         VerticalOptions="Fill">
 
-                                        <Label 
-                                            Text="{Binding PieceSymbol}"
-                                            LineHeight="0.85"
-                                            FontFamily="ChessMerida"
-                                            FontSize="36"
-                                            TextColor="{Binding PieceColor}"
-                                            HorizontalOptions="Center"
-                                            VerticalOptions="Center" >
-                                            <Label.Shadow>
-                                                <Shadow 
-                                                    Brush="Black"
-                                                    Offset="1,1"
-                                                    Radius="2"
-                                                    Opacity="0.8" />
-                                            </Label.Shadow>
+                                        <AbsoluteLayout>
+                                            <Label 
+                                                Margin="10,0,0,0"
+                                                Text="{Binding PieceSymbol}"
+                                                LineHeight="0.85"
+                                                FontFamily="ChessMerida"
+                                                FontSize="36"
+                                                TextColor="{Binding PieceColor}"
+                                                HorizontalOptions="Center"
+                                                VerticalOptions="Center" 
+                                                HorizontalTextAlignment="Center">
+                                            </Label>
 
-                                        </Label>
+                                            <Label 
+                                                Margin="8,35,0,0"
+                                                Text="{Binding LetterRow}"
+                                                FontSize="10"
+                                                TextColor="Blue"
+                                                HorizontalOptions="End"
+                                                VerticalOptions="End"
+                                                IsVisible="{Binding IsFirstColumn}"/>
 
+                                            <Label 
+                                                Margin="8,0,0,0"
+                                                Text="{Binding LetterColumn}"
+                                                FontSize="10"
+                                                TextColor="Blue"
+                                                HorizontalOptions="End"
+                                                VerticalOptions="End"
+                                                IsVisible="{Binding IsFirstRow}"/>
+                                        </AbsoluteLayout>
                                     </Border>
 
                                     <!-- Highlight overlay -->
                                     <Border 
                                         Background="{Binding IsSelected, Converter={StaticResource SquareHighlightConverter}}"
                                         InputTransparent="True" />
-
-                                    <Grid.GestureRecognizers>
-                                        <TapGestureRecognizer
-                                            Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.SquareTappedCommand}"
-                                            CommandParameter="{Binding .}" />
-                                    </Grid.GestureRecognizers>
 
                                 </Grid>
 

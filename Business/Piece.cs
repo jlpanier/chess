@@ -28,6 +28,10 @@ namespace Business
         public PieceColor Color { get; }
         public bool HasMoved { get; }
 
+        public bool IsWhite => Color == PieceColor.White;
+
+        public bool IsBlack => Color == PieceColor.Black;
+
         public Piece(PieceType type, PieceColor color, bool hasMoved = false)
         {
             Type = type;
