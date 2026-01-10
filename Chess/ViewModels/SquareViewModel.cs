@@ -40,6 +40,18 @@ namespace Chess.ViewModels
 
         public bool HasPiece => Square.Piece != null;
 
+        public int Column => Index % 8;
+
+        public int Row => (int)(Index / 8);
+
+        public bool IsFirstColumn => Column == 0;
+
+        public bool IsFirstRow => Row == 0;
+
+        public string LetterRow => "12345678"[Row].ToString();
+
+        public string LetterColumn => "abcdefgh"[Column].ToString();
+
         public Color PieceColor
         {
             get

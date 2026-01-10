@@ -67,24 +67,43 @@
                                         StrokeShape="Rectangle"
                                         WidthRequest="50"
                                         HeightRequest="50"
-                                        Margin="0"
-                                        Padding="0"
+                                        Margin="0,0,0,0"
+                                        Padding="0,0,0,0"
                                         Background="{Binding Index, Converter={StaticResource SquareColorConverter}}"
                                         HorizontalOptions="Fill"
                                         VerticalOptions="Fill">
 
-                                        <Label 
-                                            Text="{Binding PieceSymbol}"
-                                            LineHeight="0.85"
-                                            FontFamily="ChessMerida"
-                                            FontSize="36"
-                                            TextColor="{Binding PieceColor}"
-                                            HorizontalOptions="Center"
-                                            VerticalOptions="Center" >
+                                        <AbsoluteLayout>
+                                            <Label 
+                                                Margin="10,0,0,0"
+                                                Text="{Binding PieceSymbol}"
+                                                LineHeight="0.85"
+                                                FontFamily="ChessMerida"
+                                                FontSize="36"
+                                                TextColor="{Binding PieceColor}"
+                                                HorizontalOptions="Center"
+                                                VerticalOptions="Center" 
+                                                HorizontalTextAlignment="Center">
+                                            </Label>
 
+                                            <Label 
+                                                Margin="8,35,0,0"
+                                                Text="{Binding LetterRow}"
+                                                FontSize="10"
+                                                TextColor="Blue"
+                                                HorizontalOptions="End"
+                                                VerticalOptions="End"
+                                                IsVisible="{Binding IsFirstColumn}"/>
 
-                                        </Label>
-
+                                            <Label 
+                                                Margin="8,0,0,0"
+                                                Text="{Binding LetterColumn}"
+                                                FontSize="10"
+                                                TextColor="Blue"
+                                                HorizontalOptions="End"
+                                                VerticalOptions="End"
+                                                IsVisible="{Binding IsFirstRow}"/>
+                                        </AbsoluteLayout>
                                     </Border>
 
                                     <!-- Highlight overlay -->
