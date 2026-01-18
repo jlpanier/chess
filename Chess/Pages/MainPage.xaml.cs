@@ -1,8 +1,10 @@
 ﻿using Chess.ViewModels;
-using System.Windows.Input;
 
 namespace Chess.Pages
 {
+    /// <summary>
+    /// Gestion de la page principale
+    /// </summary>
     public partial class MainPage : ContentPage
     {
          public MainPage()
@@ -30,13 +32,6 @@ namespace Chess.Pages
                 vm.NewGame();
             }
         }
-
-        //private void OnBoardContainerSizeChanged(object sender, EventArgs e)
-        //{
-        //    var size = Math.Min(BoardContainer.Width, BoardContainer.Height);
-        //    BoardContainer.WidthRequest = size;
-        //    BoardContainer.HeightRequest = size;
-        //}
 
     }
 }
