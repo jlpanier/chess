@@ -1,6 +1,7 @@
 ﻿using Business;
 using CommunityToolkit.Mvvm.ComponentModel;
 using System.Collections.ObjectModel;
+using static Business.Piece;
 
 namespace Chess.ViewModels
 {
@@ -9,8 +10,24 @@ namespace Chess.ViewModels
     /// </summary>
     public partial class MainViewModel : ObservableObject
     {
-
+        /// <summary>
+        /// Echiquier
+        /// </summary>
         private readonly Board _board;
+
+        #region Propriétés
+
+        /// <summary>
+        /// Case sélectionnée
+        /// </summary>
+        public SquareViewModel? Selected => Squares.FirstOrDefault(s => s.IsSelected);
+
+        /// <summary>
+        /// Désigne la couleur du joueur qui doit jouer
+        /// </summary>
+        public PieceColor Playing => _board.Playing;
+
+        #endregion
 
         [ObservableProperty]
 #pragma warning disable MVVMTK0042 // Prefer using [ObservableProperty] on partial properties
@@ -23,6 +40,7 @@ namespace Chess.ViewModels
         {
             _board = new Board();
         }
+
 
         /// <summary>
         /// Initialisation du jeux - Squares
@@ -40,14 +58,29 @@ namespace Chess.ViewModels
         }
 
         /// <summary>
-        /// Sélection d'une case de l'échiquier
+        /// Retourne la case de l'échiquier par son index
         /// </summary>
-        public void Select(SquareViewModel item)
+        public Square GetSquare(int index) => _board.Squares.First(s => s.Index == index);
+
+        /// <summary>
+        /// Retourne la case de l'échiquier sélectionnée
+        /// </summary>
+        public Square? GetSelected() => _board.Squares.FirstOrDefault(s => s.IsSelected);
+
+        /// <summary>
+        /// Désélection d'une case de l'échiquier
+        /// </summary>
+        public void Unselect()
         {
-            foreach(var square in Squares)
+            foreach (var square in Squares)
             {
-                square.IsSelected = item == square;
+                square.IsSelected = false;
             }
         }
+
+        /// <summary>
+        /// Effectue le mouvement
+        /// </summary>
+        public bool Move(Square from, Square to) => _board.Move(from, to);
     }
 }
