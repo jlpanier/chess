@@ -1,57 +1,69 @@
 ﻿using Business;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Microsoft.Maui.ApplicationModel.DataTransfer;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Input;
 
 namespace Chess.ViewModels
 {
-    public partial class SquareViewModel : INotifyPropertyChanged
+    /// <summary>
+    /// Gestion d'une case de l'échiquier
+    /// </summary>
+    public partial class SquareViewModel : ObservableObject
     {
-        #region PropertyChange
-
-        public event PropertyChangedEventHandler? PropertyChanged;
-
-        private void NotifyPropertyChanged(String propertyName)
-        {
-            PropertyChangedEventHandler? handler = PropertyChanged;
-            if (null != handler)
-            {
-                handler(this, new PropertyChangedEventArgs(propertyName));
-                //PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-            }
-        }
-
-        #endregion
-
         #region Properties
 
-        private Board _board;
+        /// <summary>
+        /// Référence à l'échiquier principal
+        /// </summary>
+        private readonly MainViewModel _boardViewModel;
 
+        /// <summary>
+        /// Gestion de la case de l'échiquier
+        /// </summary>
         public Square Square { get; private set; }
 
+        /// <summary>
+        /// Référence de l'index de la case
+        /// </summary>
         public int Index => Square.Index;
 
+        /// <summary>
+        /// Est-elle occupée par une pièce ?
+        /// </summary>
         public bool HasPiece => Square.Piece != null;
 
+        /// <summary>
+        /// Colonne de la case (0 à 7)
+        /// </summary>
         public int Column => Index % 8;
 
+        /// <summary>
+        /// rangée de la case (0 à 7)
+        /// </summary>
         public int Row => (int)(Index / 8);
 
+        /// <summary>
+        /// Première colonne
+        /// </summary>
         public bool IsFirstColumn => Column == 0;
 
+        /// <summary>
+        /// Première rangée
+        /// </summary>
         public bool IsFirstRow => Row == 0;
 
+        /// <summary>
+        /// Nommée la rangée
+        /// </summary>
         public string LetterRow => "12345678"[Row].ToString();
 
+        /// <summary>
+        /// Nommée la colonne
+        /// </summary>
         public string LetterColumn => "abcdefgh"[Column].ToString();
 
+        /// <summary>
+        /// Couleur de la pièce sur la case
+        /// </summary>
         public Color PieceColor
         {
             get
@@ -64,28 +76,45 @@ namespace Chess.ViewModels
             }
         }
 
+        /// <summary>
+        /// Affichage de la pièce
+        /// </summary>
         public string PieceSymbol => PieceSymbols.ToSymbol(Square?.Piece);
 
-        public bool IsSelected => Square.IsSelected;
+        /// <summary>
+        /// VRAI, si la pièce est sélectionnée
+        /// </summary>
+        public bool IsSelected
+        {
+            get => _isSelected;
+            set
+            {
+                if (_isSelected != value)
+                {
+                    _isSelected = value;
+                    if (value) Square.Selected(); else Square.Unselected();
+                    OnPropertyChanged();
+                }
+            }
+        }
+        private bool _isSelected;
 
         #endregion
 
-        public SquareViewModel(Board board, Square square)
+        public SquareViewModel(MainViewModel board, Square square)
         {
             Square = square;
-            _board = board;
+            _boardViewModel = board;
         }
 
-        public void Selected()
+        /// <summary>
+        /// L'utilisateur a clické sur la case
+        /// </summary>
+        [RelayCommand]
+        public void SelectSquare()
         {
-            Square.Selected();
-            NotifyPropertyChanged(nameof(IsSelected));
-        }
-
-        public void Unselected()
-        {
-            Square.Unselected();
-            NotifyPropertyChanged(nameof(IsSelected));
+            IsSelected = true;
+            _boardViewModel.Select(this);
         }
     }
 }

@@ -1,14 +1,15 @@
 ﻿using Business;
 using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-using DevExpress.Maui.Mvvm;
 using System.Collections.ObjectModel;
-using System.Windows.Input;
 
 namespace Chess.ViewModels
 {
+    /// <summary>
+    /// Gestion de la vue principale
+    /// </summary>
     public partial class MainViewModel : ObservableObject
     {
+
         private readonly Board _board;
 
         [ObservableProperty]
@@ -24,20 +25,6 @@ namespace Chess.ViewModels
         }
 
         /// <summary>
-        /// Commande exécutée lorsqu'une case est tapée.
-        /// </summary>
-        [RelayCommand]
-        private void SquareTapped(SquareViewModel item)
-        {
-            // Exemple simple : sélectionne la case
-            item.Selected();
-
-            // Si tu veux désélectionner les autres cases :
-            // foreach (var sq in Squares)
-            //     if (sq != item) sq.Unselected();
-        }
-
-        /// <summary>
         /// Initialisation du jeux - Squares
         /// </summary>
         public void NewGame()
@@ -47,9 +34,20 @@ namespace Chess.ViewModels
             if(_board.Squares == null) return;
             foreach (var square in _board.Squares)
             {
-                items.Add(new SquareViewModel(_board, square));
+                items.Add(new SquareViewModel(this, square));
             }
             Squares = new ObservableCollection<SquareViewModel>(items);
+        }
+
+        /// <summary>
+        /// Sélection d'une case de l'échiquier
+        /// </summary>
+        public void Select(SquareViewModel item)
+        {
+            foreach(var square in Squares)
+            {
+                square.IsSelected = item == square;
+            }
         }
     }
 }

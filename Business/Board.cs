@@ -1,24 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Drawing;
-using System.IO.Pipelines;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static Business.Piece;
+﻿using static Business.Piece;
 
 namespace Business
 {
+    /// <summary>
+    /// Gestion du plateau d'échecs 
+    /// </summary>
     public class Board
     {
-        public Square[]? Squares;
+        /// <summary>
+        /// Définition de chaque case de l'échiquier
+        /// </summary>
+        public Square[]? Squares { get; private set; }
 
         public Board() 
         {
             NewGame();
         }
 
+        /// <summary>
+        /// Rafraichir le plateau pour une nouvelle partie
+        /// </summary>
         public void NewGame()
         {
             Squares = new Square[]
@@ -90,24 +91,6 @@ namespace Business
             };
         }
 
-        public Piece? GetPiece(int index) => Squares == null ? null : Squares[index].Piece;
-
-        public void SetupInitialPosition() { /* place pieces */ }
-
-        public IEnumerable<Move> GetLegalMoves(int fromIndex)
-        {
-            // generate pseudo-legal moves, filter by king safety
-            yield break;
-        }
-
-        public void ApplyMove(Move move)
-        {
-            // handle captures, promotion, castling, en passant
-        }
-
-        public bool IsCheck(Color color) { return false; }
-
-        public bool IsCheckmate(Color color) { return false; }
     }
 
 }

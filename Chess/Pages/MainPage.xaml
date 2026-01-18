@@ -16,114 +16,126 @@
         <viewModels:MainViewModel />
     </ContentPage.BindingContext>
 
-    <Grid RowDefinitions="*, Auto, *" >
+    <Grid>
+        <Image Source="background.jpg" Aspect="AspectFill" />
 
-        <Grid Grid.Row="0">
-            <Image Source="background.jpg" Aspect="AspectFill" />
-        </Grid>
-        
-        <Grid Grid.Row="1"  >
+        <Border Stroke="Brown"
+            StrokeThickness="6"
+            StrokeShape="Rectangle"
+            Background="#D8C3A5"
+            Padding="10"
+            Margin="10">
 
-            <!-- Fond bois -->
-            <Image Source="background.jpg" Aspect="AspectFill" />
+            <Border.Shadow>
+                <Shadow Brush="Black"
+                    Opacity="0.4"
+                    Offset="10,10"
+                    Radius="20" />
+            </Border.Shadow>
 
-            <!-- Plateau avec bordure -->
-            <Border Stroke="Brown"
-                StrokeThickness="6"
+            <Border Stroke="White"
+                StrokeThickness="4"
                 StrokeShape="Rectangle"
-                Background="#D8C3A5"   
-                Padding="10"
-                Margin="20">
+                Background="#D8C3A5"
+                Padding="4">
 
-                <Border.Shadow>
-                    <Shadow Brush="Black"
-                        Opacity="0.4"
-                        Offset="10,10"
-                        Radius="20" />
-                </Border.Shadow>
+                <!-- Plateau 8×8 -->
+                <Grid RowSpacing="0" ColumnSpacing="0"
+                  BindableLayout.ItemsSource="{Binding Squares}">
 
-                <Border Stroke="White"
-                    StrokeThickness="4"
-                    StrokeShape="Rectangle"
-                    Background="#D8C3A5"   
-                    Padding="4">
+                    <!-- 8 colonnes -->
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="40" />
+                        <ColumnDefinition Width="40" />
+                        <ColumnDefinition Width="40" />
+                        <ColumnDefinition Width="40" />
+                        <ColumnDefinition Width="40" />
+                        <ColumnDefinition Width="40" />
+                        <ColumnDefinition Width="40" />
+                        <ColumnDefinition Width="40" />
+                    </Grid.ColumnDefinitions>
 
-                    <CollectionView 
-                        Grid.Row="1"
-                        ItemsSource="{Binding Squares}"
-                        ItemSizingStrategy="MeasureAllItems"
-                        SelectionMode="None">
+                    <!-- 8 lignes -->
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="40" />
+                    </Grid.RowDefinitions>
 
-                        <CollectionView.ItemsLayout>
-                            <GridItemsLayout Orientation="Vertical" Span="8" HorizontalItemSpacing="1" VerticalItemSpacing="0"/>
-                        </CollectionView.ItemsLayout>
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="viewModels:SquareViewModel">
 
-                        <CollectionView.ItemTemplate>
-                            <DataTemplate x:DataType="viewModels:SquareViewModel">
-                                <Grid>
+                            <Grid 
+                                Grid.Row="{Binding Row}" 
+                                Grid.Column="{Binding Column}" 
+                                Margin="0,0,0,0"
+                                Padding="0,0,0,0">
 
-                                    <Border 
-                                        StrokeThickness="0"
-                                        StrokeShape="Rectangle"
-                                        WidthRequest="50"
-                                        HeightRequest="50"
+                                <!-- Case -->
+                                <Border 
+                                    Background="{Binding Index, Converter={StaticResource SquareColorConverter}}"
+                                    StrokeShape="Rectangle"
+                                    StrokeThickness="0"
+                                    Margin="0,0,0,0"
+                                    Padding="0,0,0,0">
+
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding SelectSquareCommand}" />
+                                    </Border.GestureRecognizers>
+                                    
+                                    <AbsoluteLayout                                    
                                         Margin="0,0,0,0"
-                                        Padding="0,0,0,0"
-                                        Background="{Binding Index, Converter={StaticResource SquareColorConverter}}"
-                                        HorizontalOptions="Fill"
-                                        VerticalOptions="Fill">
+                                        Padding="0,0,0,0">
 
-                                        <AbsoluteLayout>
-                                            <Label 
-                                                Margin="10,0,0,0"
-                                                Text="{Binding PieceSymbol}"
-                                                LineHeight="0.85"
-                                                FontFamily="ChessMerida"
-                                                FontSize="36"
-                                                TextColor="{Binding PieceColor}"
-                                                HorizontalOptions="Center"
-                                                VerticalOptions="Center" 
-                                                HorizontalTextAlignment="Center">
-                                            </Label>
+                                        <!-- Pièce -->
+                                        <Label 
+                                           Text="{Binding PieceSymbol}"
+                                           FontFamily="ChessMerida"
+                                           FontSize="36"
+                                           TextColor="{Binding PieceColor}"
+                                           HorizontalOptions="Center"
+                                           VerticalOptions="Center"
+                                           HorizontalTextAlignment="Center"
+                                           AbsoluteLayout.LayoutBounds="0.5,0.5,AutoSize,AutoSize"
+                                           AbsoluteLayout.LayoutFlags="PositionProportional"/>
 
-                                            <Label 
-                                                Margin="8,35,0,0"
-                                                Text="{Binding LetterRow}"
-                                                FontSize="10"
-                                                TextColor="Blue"
-                                                HorizontalOptions="End"
-                                                VerticalOptions="End"
-                                                IsVisible="{Binding IsFirstColumn}"/>
+                                        <!-- Coordonnée colonne (a–h) -->
+                                        <Label Text="{Binding LetterColumn}"
+                                           FontSize="10"
+                                           TextColor="#D4AF37"
+                                           Margin="4"
+                                           HorizontalOptions="Start"
+                                           VerticalOptions="Start"
+                                           IsVisible="{Binding IsFirstRow}" />
 
-                                            <Label 
-                                                Margin="8,0,0,0"
-                                                Text="{Binding LetterColumn}"
-                                                FontSize="10"
-                                                TextColor="Blue"
-                                                HorizontalOptions="End"
-                                                VerticalOptions="End"
-                                                IsVisible="{Binding IsFirstRow}"/>
-                                        </AbsoluteLayout>
-                                    </Border>
+                                        <!-- Coordonnée ligne (1–8) -->
+                                        <Label Text="{Binding LetterRow}"
+                                           FontSize="10"
+                                           TextColor="#D4AF37"
+                                           Margin="4"
+                                           HorizontalOptions="End"
+                                           VerticalOptions="End"
+                                           IsVisible="{Binding IsFirstColumn}" />
 
-                                    <!-- Highlight overlay -->
-                                    <Border 
-                                        Background="{Binding IsSelected, Converter={StaticResource SquareHighlightConverter}}"
-                                        InputTransparent="True" />
+                                    </AbsoluteLayout>
+                                </Border>
 
-                                </Grid>
+                                <!-- Highlight -->
+                                <Border Background="{Binding IsSelected, Converter={StaticResource SquareHighlightConverter}}"
+                                    InputTransparent="True" />
 
-                            </DataTemplate>
+                            </Grid>
 
-                        </CollectionView.ItemTemplate>
-                    </CollectionView>
-                </Border>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+
+                </Grid>
             </Border>
-        </Grid>
-
-        <Grid Grid.Row="2">
-            <Image Source="background.jpg" Aspect="AspectFill" />
-        </Grid>
-
+        </Border>
     </Grid>
 </ContentPage>
