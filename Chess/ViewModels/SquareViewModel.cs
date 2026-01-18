@@ -1,6 +1,9 @@
 ﻿using Business;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using DevExpress.Maui.Core.Internal;
+using Microsoft.Maui.ApplicationModel.DataTransfer;
+using static Business.Piece;
 
 namespace Chess.ViewModels
 {
@@ -17,29 +20,52 @@ namespace Chess.ViewModels
         private readonly MainViewModel _boardViewModel;
 
         /// <summary>
-        /// Gestion de la case de l'échiquier
-        /// </summary>
-        public Square Square { get; private set; }
-
-        /// <summary>
         /// Référence de l'index de la case
         /// </summary>
-        public int Index => Square.Index;
-
-        /// <summary>
-        /// Est-elle occupée par une pièce ?
-        /// </summary>
-        public bool HasPiece => Square.Piece != null;
+        public int Index
+        {
+            get => _index ?? 0;
+            set
+            {
+                if (_index != value)
+                {
+                    _index = value;
+                }
+            }
+        }
+        private int? _index;
 
         /// <summary>
         /// Colonne de la case (0 à 7)
         /// </summary>
-        public int Column => Index % 8;
+        public int Column
+        {             
+            get => _column ?? 0;
+            set
+            {
+                if (_column != value)
+                {
+                    _column = value;
+                }
+            }
+        }
+        private int? _column;
 
         /// <summary>
         /// rangée de la case (0 à 7)
         /// </summary>
-        public int Row => (int)(Index / 8);
+        public int Row
+        {
+            get => _row ?? 0;
+            set
+            {
+                if (_row != value)
+                {
+                    _row = value;
+                }
+            }
+        }
+        private int? _row;
 
         /// <summary>
         /// Première colonne
@@ -66,20 +92,32 @@ namespace Chess.ViewModels
         /// </summary>
         public Color PieceColor
         {
-            get
+            get => _pieceColor ?? Colors.Transparent;
+            set
             {
-                if (Square.Piece != null)
+                if (_pieceColor != value)
                 {
-                    return Square.Piece.IsWhite ? Colors.White : Colors.Black;
+                    _pieceColor = value;
                 }
-                return Colors.Black;
             }
         }
+        private Color? _pieceColor;
 
         /// <summary>
         /// Affichage de la pièce
         /// </summary>
-        public string PieceSymbol => PieceSymbols.ToSymbol(Square?.Piece);
+        public string PieceSymbol
+        {
+            get => _pieceSymbol;
+            set
+            {
+                if (_pieceSymbol!=value)
+                {
+                    _pieceSymbol = value;
+                }
+            }
+        }
+        private string? _pieceSymbol;
 
         /// <summary>
         /// VRAI, si la pièce est sélectionnée
@@ -92,8 +130,7 @@ namespace Chess.ViewModels
                 if (_isSelected != value)
                 {
                     _isSelected = value;
-                    if (value) Square.Selected(); else Square.Unselected();
-                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(IsSelected));
                 }
             }
         }
@@ -103,7 +140,12 @@ namespace Chess.ViewModels
 
         public SquareViewModel(MainViewModel board, Square square)
         {
-            Square = square;
+            Index = square.Index;
+            Row = square.Row;
+            Column = square.Column;
+            PieceSymbol = square.Piece?.ToPieceSymbol() ?? string.Empty;
+            PieceColor = GetColor(square);
+            IsSelected = false;
             _boardViewModel = board;
         }
 
@@ -111,10 +153,41 @@ namespace Chess.ViewModels
         /// L'utilisateur a clické sur la case
         /// </summary>
         [RelayCommand]
-        public void SelectSquare()
+        public void OnSelectSquare()
         {
-            IsSelected = true;
-            _boardViewModel.Select(this);
+            var select = _boardViewModel.GetSquare(Index);
+            var previous = _boardViewModel.GetSelected();
+            if (previous == null)
+            {
+                if (select.Piece != null && select.Piece.IsSameColor(_boardViewModel.Playing))
+                {
+                    IsSelected = true;
+                    select.Selected();
+                }
+            }
+            else
+            {
+                if (_boardViewModel.Move(previous, select))
+                {
+                    PieceSymbol = previous.Piece?.ToPieceSymbol() ?? string.Empty;
+                    PieceColor = GetColor(previous);
+                    var previousViewModel = _boardViewModel.Selected;
+                    if(previousViewModel!=null)
+                    {
+                        previousViewModel.PieceColor = Colors.Transparent;
+                        previousViewModel.PieceSymbol = string.Empty;
+                    }
+                }
+                previous.Unselect();
+                _boardViewModel.Unselect();
+            }
+
         }
+
+        /// <summary>
+        /// Retourne la couleur de la pièce
+        /// </summary>
+        public static Color GetColor(Square square) => square.HasPiece ? (square.Piece!.IsWhite ? Colors.White : Colors.Black) : Colors.Transparent;
+
     }
 }

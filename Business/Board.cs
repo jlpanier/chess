@@ -10,10 +10,17 @@ namespace Business
         /// <summary>
         /// Définition de chaque case de l'échiquier
         /// </summary>
-        public Square[]? Squares { get; private set; }
+        public Square[] Squares { get; private set; }
+
+        /// <summary>
+        /// Désigne la couleur du joueur qui doit jouer
+        /// </summary>
+        public PieceColor Playing { get; private set; }
+
 
         public Board() 
         {
+            Squares = new Square[0];
             NewGame();
         }
 
@@ -22,13 +29,14 @@ namespace Business
         /// </summary>
         public void NewGame()
         {
+            Playing = PieceColor.White;
             Squares = new Square[]
             {
                 new Square(0,new Piece(PieceType.Rook, PieceColor.White)),
                 new Square(1,new Piece(PieceType.Knight, PieceColor.White)),
                 new Square(2,new Piece(PieceType.Bishop, PieceColor.White)),
-                new Square(3,new Piece(PieceType.Queen, PieceColor.White)),
-                new Square(4,new Piece(PieceType.King, PieceColor.White)),
+                new Square(3,new Piece(PieceType.King, PieceColor.White)),
+                new Square(4,new Piece(PieceType.Queen, PieceColor.White)),
                 new Square(5,new Piece(PieceType.Bishop, PieceColor.White)),
                 new Square(6,new Piece(PieceType.Knight, PieceColor.White)),
                 new Square(7,new Piece(PieceType.Rook, PieceColor.White)),
@@ -91,6 +99,21 @@ namespace Business
             };
         }
 
-    }
 
+        /// <summary>
+        /// Execute si possible le déplacement d'une pièce d'une case à une autre
+        /// </summary>
+        /// <param name="from"></param>
+        /// <param name="to"></param>
+        /// <returns>VRAI, si le le coup fut possible</returns>
+        /// <exception cref="InvalidOperationException"></exception>
+        public bool Move(Square from, Square to)
+        {
+            if (from.Piece == null)
+            {
+                throw new InvalidOperationException("No piece to move.");
+            }
+            return from.IsValidMove(to);
+        }
+    }
 }
