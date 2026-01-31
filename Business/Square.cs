@@ -1,4 +1,6 @@
-﻿namespace Business
+﻿using static Business.Piece;
+
+namespace Business
 {
     /// <summary>
     /// Gestion d'une case de l'échiquier
@@ -50,7 +52,7 @@
         /// <summary>
         /// Sélection de la pièce
         /// </summary>
-        public void Selected()
+        public void Select()
         {
             IsSelected = true;
         }
@@ -61,59 +63,6 @@
         public void Unselect()
         {
             IsSelected = false;
-        }
-
-        /// <summary>
-        /// VRAI, si la pièce peut bouger à to 
-        /// </summary>
-        public bool IsValidMove(Square to)
-        {
-            System.Diagnostics.Debug.Assert(Piece != null);
-
-            var result = true;
-            switch (Piece.Type)
-            {
-                case Piece.PieceType.King:
-                    return IsValidKingMove(to);
-                case Piece.PieceType.Queen:
-                    break;
-                case Piece.PieceType.Rook:
-                    break;
-                case Piece.PieceType.Bishop:
-                    break;
-                case Piece.PieceType.Knight:
-                    break;
-                case Piece.PieceType.Pawn:
-                    break;
-            }
-            return result;
-        }
-
-        /// <summary>
-        /// VRAI, si le roi peut bouger à to 
-        /// </summary>
-        private bool IsValidKingMove(Square to)
-        {
-            System.Diagnostics.Debug.Assert(Piece != null);
-
-            if (to.HasPiece && Piece.IsSameColor(to))
-            {
-                return false;
-            }
-            if(to.Row == Row && to.Column == Column)
-            {
-                return false;
-            }
-            if (Math.Abs(to.Row - Row) > 1)
-            {
-                return false;
-            }
-            if (Math.Abs(to.Column - Column) > 1)
-            {
-                return false;
-            }
-            // TODO: Vérifier si pas echec
-            return true;
         }
     }
 }
