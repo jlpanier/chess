@@ -1,9 +1,6 @@
 ﻿using Business;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using DevExpress.Maui.Core.Internal;
-using Microsoft.Maui.ApplicationModel.DataTransfer;
-using static Business.Piece;
 
 namespace Chess.ViewModels
 {
@@ -18,6 +15,8 @@ namespace Chess.ViewModels
         /// Référence à l'échiquier principal
         /// </summary>
         private readonly MainViewModel _boardViewModel;
+
+        public Square Square => _boardViewModel.Board.GetSquare(Index);
 
         /// <summary>
         /// Référence de l'index de la case
@@ -98,6 +97,7 @@ namespace Chess.ViewModels
                 if (_pieceColor != value)
                 {
                     _pieceColor = value;
+                    OnPropertyChanged(nameof(PieceColor));
                 }
             }
         }
@@ -114,10 +114,11 @@ namespace Chess.ViewModels
                 if (_pieceSymbol!=value)
                 {
                     _pieceSymbol = value;
+                    OnPropertyChanged(nameof(PieceSymbol));
                 }
             }
         }
-        private string? _pieceSymbol;
+        private string _pieceSymbol="";
 
         /// <summary>
         /// VRAI, si la pièce est sélectionnée
@@ -136,6 +137,23 @@ namespace Chess.ViewModels
         }
         private bool _isSelected;
 
+        /// <summary>
+        /// VRAI, si la pièce sélectionnée peut se déplacer à cet endroit
+        /// </summary>
+        public bool IsPossibleMove
+        {
+            get => _isPossibleMove;
+            set
+            {
+                if (_isPossibleMove != value)
+                {
+                    _isPossibleMove = value;
+                    OnPropertyChanged(nameof(IsPossibleMove));
+                }
+            }
+        }
+        private bool _isPossibleMove;
+
         #endregion
 
         public SquareViewModel(MainViewModel board, Square square)
@@ -144,7 +162,7 @@ namespace Chess.ViewModels
             Row = square.Row;
             Column = square.Column;
             PieceSymbol = square.Piece?.ToPieceSymbol() ?? string.Empty;
-            PieceColor = GetColor(square);
+            PieceColor = square.HasPiece ? (square.Piece!.IsWhite ? Colors.White : Colors.Black) : Colors.Transparent;
             IsSelected = false;
             _boardViewModel = board;
         }
@@ -155,39 +173,43 @@ namespace Chess.ViewModels
         [RelayCommand]
         public void OnSelectSquare()
         {
-            var select = _boardViewModel.GetSquare(Index);
-            var previous = _boardViewModel.GetSelected();
-            if (previous == null)
-            {
-                if (select.Piece != null && select.Piece.IsSameColor(_boardViewModel.Playing))
-                {
-                    IsSelected = true;
-                    select.Selected();
-                }
-            }
-            else
-            {
-                if (_boardViewModel.Move(previous, select))
-                {
-                    PieceSymbol = previous.Piece?.ToPieceSymbol() ?? string.Empty;
-                    PieceColor = GetColor(previous);
-                    var previousViewModel = _boardViewModel.Selected;
-                    if(previousViewModel!=null)
-                    {
-                        previousViewModel.PieceColor = Colors.Transparent;
-                        previousViewModel.PieceSymbol = string.Empty;
-                    }
-                }
-                previous.Unselect();
-                _boardViewModel.Unselect();
-            }
-
+            _boardViewModel.Select(Index);
         }
 
         /// <summary>
-        /// Retourne la couleur de la pièce
+        /// Sélection de la case
         /// </summary>
-        public static Color GetColor(Square square) => square.HasPiece ? (square.Piece!.IsWhite ? Colors.White : Colors.Black) : Colors.Transparent;
+        public void Select()
+        {
+            IsSelected = true; // Indiquer à la vue la sélection
+            Square.Select(); // Indiquer à la classe business la sélection
+        }
 
+        /// <summary>
+        /// Déselection de la case
+        /// </summary>
+        public void Unselect()
+        {
+            IsSelected = false; // Indiquer à la vue la désélection
+            Square.Unselect(); // Indiquer à la classe business la sélection
+        }
+
+        /// <summary>
+        /// La case est vide
+        /// </summary>
+        public void Empty()
+        {
+            PieceColor = Colors.Transparent;
+            PieceSymbol = string.Empty;
+        }
+
+        /// <summary>
+        /// Positionner une pièce sur la case
+        /// </summary>
+        public void Set(Piece piece)
+        {
+            PieceColor = piece!.IsWhite ? Colors.White : Colors.Black;
+            PieceSymbol = piece.ToPieceSymbol();
+        }
     }
 }

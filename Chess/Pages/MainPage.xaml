@@ -104,7 +104,19 @@
                                            AbsoluteLayout.LayoutBounds="0.5,0.5,AutoSize,AutoSize"
                                            AbsoluteLayout.LayoutFlags="PositionProportional"/>
 
-                                        <!-- Coordonnée colonne (a–h) -->
+                                        <!-- Rond plein au centre -->
+                                        <BoxView 
+                                            Color="LightGreen"   
+                                            BackgroundColor="Transparent"
+                                            WidthRequest="12"
+                                            HeightRequest="12"
+                                            CornerRadius="10"
+                                            AbsoluteLayout.LayoutBounds="0.5,0.5,20,20"
+                                            AbsoluteLayout.LayoutFlags="PositionProportional"
+                                            IsVisible="{Binding IsPossibleMove}"/>
+
+                                            
+                                            <!-- Coordonnée colonne (a–h) -->
                                         <Label Text="{Binding LetterColumn}"
                                            FontSize="10"
                                            TextColor="#D4AF37"

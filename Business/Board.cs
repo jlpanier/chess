@@ -1,4 +1,7 @@
-﻿using static Business.Piece;
+﻿using SQLitePCL;
+using System.IO.Pipelines;
+using static Business.Piece;
+using static SQLite.TableMapping;
 
 namespace Business
 {
@@ -7,6 +10,11 @@ namespace Business
     /// </summary>
     public class Board
     {
+        /// <summary>
+        /// Taille de l'échiquier (8x8)
+        /// </summary>
+        const int Size = 8;
+
         /// <summary>
         /// Définition de chaque case de l'échiquier
         /// </summary>
@@ -17,6 +25,10 @@ namespace Business
         /// </summary>
         public PieceColor Playing { get; private set; }
 
+        /// <summary>
+        /// Retourne la case à l'index spécifié
+        /// </summary>
+        public Square GetSquare(int index) => Squares[index];
 
         public Board() 
         {
@@ -99,21 +111,239 @@ namespace Business
             };
         }
 
+        /// <summary>
+        /// Liste des déplacements possibles pour une pièce sur cette case donnée
+        /// </summary>
+        public List<Square> PossibleMoves(Square square)
+        {
+            var result = new List<Square>();
+            if (square.Piece!=null && square.Piece.Color == Playing)
+            {
+                switch (square.Piece.Type)
+                {
+                    case Piece.PieceType.King:
+                        for (int r = square.Row - 1; r <= square.Row + 1; r++)
+                        {
+                            for (int c = square.Column - 1; c <= square.Column + 1; c++)
+                            {
+                                if (r >= 0 && r < 8 && c >= 0 && c < 8)
+                                {
+                                    var index = r * 8 + c;
+                                    var to = Squares[index];
+                                    if (to.Piece == null)
+                                    {
+                                        // sauf si echec
+                                        result.Add(square);
+                                    }
+                                    else if (to.Piece.Color != square.Piece.Color)
+                                    {
+                                        // sauf si echec
+                                        result.Add(square);
+                                    }
+                                }
+                            }
+                        }
+                        break;
+                    case Piece.PieceType.Queen:
+                        int[][] queenDirections =
+                        {
+                            new[] { -1, -1 }, // haut-gauche
+                            new[] { -1,  1 }, // haut-droite
+                            new[] {  1, -1 }, // bas-gauche
+                            new[] {  1,  1 }, // bas-droite
+
+                            new[] { -1,  0 }, // haut
+                            new[] {  1,  0 }, // bas
+                            new[] {  0, -1 }, // gauche
+                            new[] {  0,  1 }  // droite
+                        };
+                        foreach (var dir in queenDirections)
+                        {
+                            int row = square.Row + dir[0];
+                            int col = square.Column + dir[1];
+
+                            while (row >= 0 && row < Size && col >= 0 && col < Size)
+                            {
+                                var target = Squares.Single(_ => _.Row == row && _.Column == col);
+                                if (target.Piece == null)
+                                {
+                                    result.Add(target); // case vide
+                                }
+                                else
+                                {
+                                    if (target.Piece.Color != square.Piece.Color) result.Add(target); // capture possible
+                                    break; // on s'arrête dans tous les cas
+                                }
+                                row += dir[0];
+                                col += dir[1];
+                            }
+                        }
+                        break;
+                    case Piece.PieceType.Rook:
+                        int[][] rookDdirections = 
+                        {
+                            new[] { -1,  0 }, // haut
+                            new[] {  1,  0 }, // bas
+                            new[] {  0, -1 }, // gauche
+                            new[] {  0,  1 }  // droite
+                        };
+
+
+                        foreach (var dir in rookDdirections)
+                        {
+                            int row = square.Row + dir[0];
+                            int col = square.Column + dir[1];
+
+                            while (row >= 0 && row < Size && col >= 0 && col < Size)
+                            {
+                                var target = Squares.Single(_ => _.Row == row && _.Column == col);
+                                if (target.Piece == null)
+                                {
+                                    result.Add(target); // case vide
+                                }
+                                else
+                                {
+                                    if (target.Piece.Color != square.Piece.Color) result.Add(target); // capture possible
+                                    break; // on s'arrête dans tous les cas
+                                }
+                                row += dir[0];
+                                col += dir[1];
+                            }
+                        }
+                        break;
+                    case Piece.PieceType.Bishop:
+                        int[][] bishopDirections =
+                        {
+                            new[] { -1, -1 }, // haut-gauche
+                            new[] { -1,  1 }, // haut-droite
+                            new[] {  1, -1 }, // bas-gauche
+                            new[] {  1,  1 }  // bas-droite
+                        };
+
+                        foreach (var dir in bishopDirections)
+                        {
+                            int row = square.Row + dir[0];
+                            int col = square.Column+ dir[1];
+
+                            while (row >= 0 && row < Size && col >= 0 && col < Size)
+                            {
+                                var target = Squares.Single(_=>_.Row == row && _.Column == col);
+                                if (target.Piece == null)
+                                {
+                                    result.Add(target); // case vide
+                                }
+                                else
+                                {
+                                    if (target.Piece.Color != square.Piece.Color) result.Add(target); // capture possible
+                                    break; // on s'arrête dans tous les cas
+                                }
+                                row += dir[0];
+                                col += dir[1];
+                            }
+                        }
+                        break;
+                    case Piece.PieceType.Knight:
+                        int[] knightMoves = { -17, -15, -10, -6, 6, 10, 15, 17 };
+                        foreach (var move in knightMoves)
+                        {
+                            int targetIndex = square.Index + move;
+                            if (targetIndex >= 0 && targetIndex < 64)
+                            {
+                                int targetRow = targetIndex / 8;
+                                int targetCol = targetIndex % 8;
+                                int rowDiff = Math.Abs(targetRow - square.Row);
+                                int colDiff = Math.Abs(targetCol - square.Column);
+                                if ((rowDiff == 2 && colDiff == 1) || (rowDiff == 1 && colDiff == 2))
+                                {
+                                    var targetSquare = Squares[targetIndex];
+                                    if (targetSquare.Piece == null || targetSquare.Piece.Color != square.Piece.Color)
+                                    {
+                                        result.Add(targetSquare);
+                                    }
+                                }
+                            }
+                        }
+                        break;
+                    case Piece.PieceType.Pawn:
+                        int forwardIndex;
+                        int captureLeftIndex;
+                        int captureRightIndex;
+                        switch (square.Piece.Color)
+                        {
+                            case PieceColor.White:
+                                forwardIndex = square.Index + 8;
+                                if (forwardIndex < 64 && Squares[forwardIndex].Piece == null)
+                                {
+                                    result.Add(Squares[forwardIndex]);
+                                    if (square.Row == 1)
+                                    {
+                                        int doubleForwardIndex = square.Index + 16;
+                                        if (Squares[doubleForwardIndex].Piece == null)
+                                        {
+                                            result.Add(Squares[doubleForwardIndex]);
+                                        }
+                                    }
+                                }
+                                captureLeftIndex = square.Index + 7;
+                                if (square.Column > 0 && captureLeftIndex < 64 && Squares[captureLeftIndex].Piece != null && Squares[captureLeftIndex].Piece!.Color == PieceColor.Black)
+                                {
+                                    result.Add(Squares[captureLeftIndex]);
+                                }
+                                captureRightIndex = square.Index + 9;
+                                if (square.Column < 7 && captureRightIndex < 64 && Squares[captureRightIndex].Piece != null && Squares[captureRightIndex].Piece!.Color == PieceColor.Black)
+                                {
+                                    result.Add(Squares[captureRightIndex]);
+                                }
+                                break;
+                            case PieceColor.Black:
+                                forwardIndex = square.Index - 8;
+                                if (forwardIndex >= 0 && Squares[forwardIndex].Piece == null)
+                                {
+                                    result.Add(Squares[forwardIndex]);
+                                    if (square.Row == 6)
+                                    {
+                                        int doubleForwardIndex = square.Index - 16;
+                                        if (Squares[doubleForwardIndex].Piece == null)
+                                        {
+                                            result.Add(Squares[doubleForwardIndex]);
+                                        }
+                                    }
+                                }
+                                captureLeftIndex = square.Index - 9;
+                                if (square.Column > 0 && captureLeftIndex >= 0 && Squares[captureLeftIndex].Piece != null && Squares[captureLeftIndex].Piece!.Color == PieceColor.White)
+                                {
+                                    result.Add(Squares[captureLeftIndex]);
+                                }
+                                captureRightIndex = square.Index - 7;
+                                if (square.Column < 7 && captureRightIndex >= 0 && Squares[captureRightIndex].Piece != null && Squares[captureRightIndex].Piece!.Color == PieceColor.White)
+                                {
+                                    result.Add(Squares[captureRightIndex]);
+                                }
+                                break;
+                        }
+                        break;
+                }
+            }
+            return result;
+        }
 
         /// <summary>
-        /// Execute si possible le déplacement d'une pièce d'une case à une autre
+        /// Déplacement d'une pièce d'une case à une autre
         /// </summary>
-        /// <param name="from"></param>
-        /// <param name="to"></param>
-        /// <returns>VRAI, si le le coup fut possible</returns>
-        /// <exception cref="InvalidOperationException"></exception>
         public bool Move(Square from, Square to)
         {
-            if (from.Piece == null)
+            bool result = false;
+            if (from != null && to != null)
             {
-                throw new InvalidOperationException("No piece to move.");
+                to.Piece = from.Piece;
+                from.Piece = null;
+                from.Unselect(); // Indiquer à la classe business la désélection
+                to.Unselect(); // Indiquer à la classe business la désélection
+                Playing= Playing ==PieceColor.White ? PieceColor.Black : PieceColor.White;
+
+                result = true;
             }
-            return from.IsValidMove(to);
+            return result;
         }
     }
 }
