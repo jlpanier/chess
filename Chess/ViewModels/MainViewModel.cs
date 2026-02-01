@@ -2,7 +2,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using DevExpress.Maui.Mvvm;
 using System.Collections.ObjectModel;
-using static Business.Piece;
 
 namespace Chess.ViewModels
 {
@@ -17,6 +16,35 @@ namespace Chess.ViewModels
         public readonly Board Board;
 
         #region Propriétés
+
+        public string BlackTakenPieces
+        {
+            get => _blackTakenPieces;
+            set
+            {
+                if (_blackTakenPieces != value)
+                {
+                    _blackTakenPieces = value;
+                    OnPropertyChanged(nameof(BlackTakenPieces));
+                }
+            }
+        }
+        private string _blackTakenPieces;
+
+        public string WhiteTakenPieces
+        {
+            get => _whiteTakenPieces;
+            set
+            {
+                if (_whiteTakenPieces != value)
+                {
+                    _whiteTakenPieces = value;
+                    OnPropertyChanged(nameof(WhiteTakenPieces));
+                }
+            }
+        }
+        private string _whiteTakenPieces;
+
 
         /// <summary>
         /// Retourne la case de l'échiquier sélectionnée
@@ -86,30 +114,50 @@ namespace Chess.ViewModels
             var selected = GetSquare(index);
             if (Selected == null) // Aucune pièce sélectionnée actuellement
             {
-                var moves = PossibleMoves(selected);
-                if (moves.Any())
+                Moves = PossibleMoves(selected);
+                if (Moves.Any())
                 {
                     selected.Select();
-                    foreach (var move in moves)
+                    foreach (var move in Moves)
                     {
                         Squares.First(s => s.Index == move.Index).IsPossibleMove = true;
                     }
                 }
             }
-            else
+            else 
             {
-                var move = PossibleMoves(Selected).FirstOrDefault(_=>_.Index == index);
+                var move = Moves.FirstOrDefault(_ => _.Index == index);
                 if (move != null)
                 {
+
                     if (Board.Move(Selected.Square, move))
                     {
+                        string whiteTakenPieces = string.Empty;
+                        string blackTakenPieces = string.Empty;
+                        foreach (var piece in Board.Takens)
+                        {
+                            if (piece.IsWhite)
+                            {
+                                whiteTakenPieces += piece.ToPieceSymbol();
+                            }
+                            else
+                            {
+                                blackTakenPieces += piece.ToPieceSymbol();
+                            }
+                        }
+                        WhiteTakenPieces = whiteTakenPieces;
+                        BlackTakenPieces = blackTakenPieces;
+
                         var previousSelect = Selected;
-                        System.Diagnostics.Debug.Assert(move.Piece != null);
-                        selected.Set(move.Piece);
-                        previousSelect.Empty();
+                        if (move.Piece != null)
+                        {
+                            selected.Set(move.Piece);
+                            previousSelect.Empty();
+                        }
 
                         previousSelect.Unselect();
                         selected.Unselect();
+                        Moves = new List<Square>();
                     }
                 }
                 Squares.ForEach(_ =>
@@ -119,5 +167,6 @@ namespace Chess.ViewModels
                 });
             }
         }
+        private List<Square> Moves;
     }
 }
