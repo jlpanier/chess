@@ -30,6 +30,11 @@ namespace Business
         /// </summary>
         public Square GetSquare(int index) => Squares[index];
 
+        /// <summary>
+        /// Piéces prises
+        /// </summary>
+        public List<Piece> Takens { get; private set; } = new List<Piece>();
+
         public Board() 
         {
             Squares = new Square[0];
@@ -133,12 +138,12 @@ namespace Business
                                     if (to.Piece == null)
                                     {
                                         // sauf si echec
-                                        result.Add(square);
+                                        result.Add(to);
                                     }
                                     else if (to.Piece.Color != square.Piece.Color)
                                     {
                                         // sauf si echec
-                                        result.Add(square);
+                                        result.Add(to);
                                     }
                                 }
                             }
@@ -335,12 +340,15 @@ namespace Business
             bool result = false;
             if (from != null && to != null)
             {
+                if (to.Piece != null)
+                {
+                    Takens.Add(to.Piece);
+                }
                 to.Piece = from.Piece;
                 from.Piece = null;
                 from.Unselect(); // Indiquer à la classe business la désélection
                 to.Unselect(); // Indiquer à la classe business la désélection
                 Playing= Playing ==PieceColor.White ? PieceColor.Black : PieceColor.White;
-
                 result = true;
             }
             return result;

@@ -64,11 +64,6 @@
         /// <summary>
         /// VRAI, si la pièce de même couleur que l'autre pièce
         /// </summary>
-        public bool IsSameColor(Square other) => other.Piece !=null && IsSameColor(other.Piece);
-
-        /// <summary>
-        /// VRAI, si la pièce de même couleur que l'autre pièce
-        /// </summary>
         public bool IsSameColor(Piece piece) => IsSameColor(piece.Color);
 
         /// <summary>
