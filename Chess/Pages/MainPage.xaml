@@ -16,9 +16,9 @@
         <viewModels:MainViewModel />
     </ContentPage.BindingContext>
 
-    <Grid>
+    <Grid RowDefinitions="*,Auto">
         <Image Source="background.jpg" Aspect="AspectFill" />
-
+        
         <Border Stroke="Brown"
             StrokeThickness="6"
             StrokeShape="Rectangle"
@@ -43,6 +43,7 @@
                     Margin="0,0,0,10"
                     FontSize="24"
                     TextColor="Black"/>
+
 
                 <Border 
                     Grid.Row="1"
@@ -99,12 +100,18 @@
 
                                         <Border.GestureRecognizers>
                                             <TapGestureRecognizer Command="{Binding SelectSquareCommand}" />
+                                            <TapGestureRecognizer 
+                                            NumberOfTapsRequired="2"
+                                            Command="{Binding DoubleClickSquareCommand}" />
+
                                         </Border.GestureRecognizers>
 
                                         <AbsoluteLayout                                    
                                             Margin="0,0,0,0"
                                             Padding="0,0,0,0">
 
+
+                                            
                                             <!-- Pièce -->
                                             <Label 
                                                Text="{Binding PieceSymbol}"
@@ -119,21 +126,33 @@
 
                                             <!-- Rond plein au centre -->
                                             <BoxView 
-                                                Color="LightGreen"   
+                                                Color="{Binding MoveColor}"   
                                                 BackgroundColor="Transparent"
                                                 WidthRequest="12"
                                                 HeightRequest="12"
                                                 CornerRadius="10"
                                                 AbsoluteLayout.LayoutBounds="0.5,0.5,20,20"
                                                 AbsoluteLayout.LayoutFlags="PositionProportional"
-                                                IsVisible="{Binding IsPossibleMove}"/>
+                                                IsVisible="{Binding IsAuthorizedMove
+                                                }"/>
 
+                                            <Border 
+                                                Stroke="{Binding BorderMoveColor}"
+                                                StrokeThickness="2"
+                                                StrokeShape="Rectangle"
+                                                Background="Transparent"
+                                                IsVisible="{Binding ShowBorder}"
+                                                AbsoluteLayout.LayoutBounds="0,0,1,1"
+                                                AbsoluteLayout.LayoutFlags="All"
+                                                InputTransparent="True"
+                                                />
+                                            
 
                                             <!-- Coordonnée colonne (a–h) -->
                                             <Label Text="{Binding LetterColumn}"
                                                FontSize="10"
                                                TextColor="#D4AF37"
-                                               Margin="4"
+                                               Margin="1,0,0,0"
                                                HorizontalOptions="Start"
                                                VerticalOptions="Start"
                                                IsVisible="{Binding IsFirstRow}" />
@@ -142,11 +161,13 @@
                                             <Label Text="{Binding LetterRow}"
                                                FontSize="10"
                                                TextColor="#D4AF37"
-                                               Margin="4"
+                                               Margin="1,0,0,0"
                                                HorizontalOptions="End"
                                                VerticalOptions="End"
                                                IsVisible="{Binding IsFirstColumn}" />
 
+
+                                            
                                         </AbsoluteLayout>
                                     </Border>
 
@@ -172,5 +193,23 @@
                     TextColor="White"/>
             </Grid>
         </Border>
+
+        <Button 
+            Text="↺"
+            Grid.Row="2"
+            HorizontalOptions="End"
+            VerticalOptions="Center"
+            Margin="5,5,5,5"
+            Command="{Binding ResetGameCommand}"
+            BackgroundColor="#B22222"
+            TextColor="White"
+            WidthRequest="40"
+            HeightRequest="40"
+            CornerRadius="25"
+            FontSize="32"
+            Padding="0,-5,0,0"/>
+
+
+
     </Grid>
 </ContentPage>

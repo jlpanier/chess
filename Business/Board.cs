@@ -1,7 +1,4 @@
-﻿using SQLitePCL;
-using System.IO.Pipelines;
-using static Business.Piece;
-using static SQLite.TableMapping;
+﻿using static Business.Piece;
 
 namespace Business
 {
@@ -35,7 +32,7 @@ namespace Business
         /// </summary>
         public List<Piece> Takens { get; private set; } = new List<Piece>();
 
-        public Board() 
+        public Board()
         {
             Squares = new Square[0];
             NewGame();
@@ -116,13 +113,41 @@ namespace Business
             };
         }
 
+        public void Unselect()
+        {
+            foreach(var item in Squares)
+            {
+                item.Unselect();
+            }
+
+        }
+
         /// <summary>
         /// Liste des déplacements possibles pour une pièce sur cette case donnée
         /// </summary>
-        public List<Square> PossibleMoves(Square square)
+        public void Select(Square square)
+        {
+            if (square.Piece!=null && Playing == square.Piece.Color)
+            {
+                var moves = AuthorizeMoves(square);
+                foreach (var item in Squares)
+                {
+                    item.Unselect();
+                    item.IsAuthorizedMove = moves.Any(_ => _.Index == item.Index);
+                }
+                square.Select();
+            }
+        }
+
+        /// <summary>
+        /// Liste des mouvements autorisés pour une pièce sur cette case donnée
+        /// </summary>
+        /// <param name="square"></param>
+        /// <returns></returns>
+        private List<Square> AuthorizeMoves(Square square)
         {
             var result = new List<Square>();
-            if (square.Piece!=null && square.Piece.Color == Playing)
+            if (square.Piece != null && square.Piece.Color == Playing)
             {
                 switch (square.Piece.Type)
                 {
@@ -185,7 +210,7 @@ namespace Business
                         }
                         break;
                     case Piece.PieceType.Rook:
-                        int[][] rookDdirections = 
+                        int[][] rookDdirections =
                         {
                             new[] { -1,  0 }, // haut
                             new[] {  1,  0 }, // bas
@@ -228,11 +253,11 @@ namespace Business
                         foreach (var dir in bishopDirections)
                         {
                             int row = square.Row + dir[0];
-                            int col = square.Column+ dir[1];
+                            int col = square.Column + dir[1];
 
                             while (row >= 0 && row < Size && col >= 0 && col < Size)
                             {
-                                var target = Squares.Single(_=>_.Row == row && _.Column == col);
+                                var target = Squares.Single(_ => _.Row == row && _.Column == col);
                                 if (target.Piece == null)
                                 {
                                     result.Add(target); // case vide
@@ -340,18 +365,71 @@ namespace Business
             bool result = false;
             if (from != null && to != null)
             {
-                if (to.Piece != null)
+                var moves = AuthorizeMoves(from);
+                if (moves.Any(_=>_.Index==to.Index))
                 {
-                    Takens.Add(to.Piece);
+                    if (to.Piece != null)
+                    {
+                        Takens.Add(to.Piece);
+                    }
+                    to.Piece = from.Piece;
+                    from.Piece = null;
+                    Playing = Playing == PieceColor.White ? PieceColor.Black : PieceColor.White;
+
+                    foreach (var item in Squares)
+                    {
+                        item.Unselect();
+                    }
+
+                    result = true;
                 }
-                to.Piece = from.Piece;
-                from.Piece = null;
-                from.Unselect(); // Indiquer à la classe business la désélection
-                to.Unselect(); // Indiquer à la classe business la désélection
-                Playing= Playing ==PieceColor.White ? PieceColor.Black : PieceColor.White;
-                result = true;
             }
             return result;
+        }
+
+        /// <summary>
+        /// Gestion du double clic sur une case : sélection de la pièce, affichage des déplacements possibles, indication du meilleur coup, etc.
+        /// </summary>
+        /// <param name="square"></param>
+        public void DoubleClick(Square square)
+        {
+            var selected = Squares.FirstOrDefault(_ => _.IsSelected);
+            if (selected == null) // Aucune piece sélectionnée
+            {
+                if (square.Piece != null && Playing == square.Piece.Color)
+                {
+                    var moves = AuthorizeMoves(square);
+                    foreach (var item in Squares)
+                    {
+                        item.Unselect();
+                        item.IsAuthorizedMove = moves.Any(_ => _.Index == item.Index);
+                        item.IsBestMove = square.Index == item.Index && square.Piece != null && square.Piece.Color == Playing;
+                    }
+                    square.Select();
+                }
+            }
+            else
+            {
+                var moves = AuthorizeMoves(selected);
+                var bestmove = moves.FirstOrDefault(_ => _.IsBestMove);
+                if (bestmove==null)
+                {
+                    moves.ForEach(_ => _.IsBestMove = _.Index == square.Index);
+                }
+                else if(bestmove.Index == square.Index)
+                {
+                    bestmove.IsBestMove = false;
+                }
+                else if (moves.Any(_=>_.Index == square.Index))
+                {
+                    square.IsBadMove = !square.IsBadMove;
+                }
+                else
+                {
+                    square.IsWarning = !square.IsWarning;
+                }
+
+            }
         }
     }
 }

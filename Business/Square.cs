@@ -55,7 +55,7 @@ namespace Business
         public void Select()
         {
             IsSelected = true;
-        }
+       }
 
         /// <summary>
         /// Désélection de la pièce
@@ -63,6 +63,31 @@ namespace Business
         public void Unselect()
         {
             IsSelected = false;
+            IsWarning = false;
+            IsBadMove = false;
+            IsBestMove = false;
+            IsAuthorizedMove = false;
         }
+
+        /// <summary>
+        /// Meilleur coup possible pour la pièce sélectionnée
+        /// </summary>
+        public bool IsBestMove { get; set; }
+
+        /// <summary>
+        /// Attention, ce coup est dangereux
+        /// </summary>
+        public bool IsWarning { get; set; }
+
+        /// <summary>
+        /// Mauvais coup, à éviter
+        /// </summary>
+        public bool IsBadMove { get; set; }
+
+        /// <summary>
+        /// Mouvement autorisé pour la pièce sélectionnée
+        /// </summary>
+        public bool IsAuthorizedMove { get; set; }
     }
+
 }

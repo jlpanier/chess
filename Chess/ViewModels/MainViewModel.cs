@@ -1,5 +1,7 @@
 ﻿using Business;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using DevExpress.Android.Charts;
 using DevExpress.Maui.Mvvm;
 using System.Collections.ObjectModel;
 
@@ -17,6 +19,9 @@ namespace Chess.ViewModels
 
         #region Propriétés
 
+        /// <summary>
+        /// LIste des pièces noires prises par les blancs
+        /// </summary>
         public string BlackTakenPieces
         {
             get => _blackTakenPieces;
@@ -31,6 +36,9 @@ namespace Chess.ViewModels
         }
         private string _blackTakenPieces;
 
+        /// <summary>
+        /// Liste des pièces blanches prises par les noirs
+        /// </summary>
         public string WhiteTakenPieces
         {
             get => _whiteTakenPieces;
@@ -72,6 +80,13 @@ namespace Chess.ViewModels
         }
 
 
+        [RelayCommand]
+        private void ResetGame()
+        {
+            NewGame();
+        }
+
+
         /// <summary>
         /// Initialisation du jeux - Squares
         /// </summary>
@@ -100,73 +115,52 @@ namespace Chess.ViewModels
         }
 
         /// <summary>
-        /// Liste des coups possibles pour une pièce
-        /// </summary>
-        public List<Square> PossibleMoves(SquareViewModel from) => Board.PossibleMoves(from.Square);
-
-        public bool Move(SquareViewModel from, SquareViewModel to) => Board.Move(from.Square, to.Square);
-        
-        /// <summary>
         /// Sélection d'un case de l'échiquier
         /// </summary>
         public void Select(int index)
         {
             var selected = GetSquare(index);
-            if (Selected == null) // Aucune pièce sélectionnée actuellement
+            if (Selected == null) // Aucune pièce pré-sélectionnée
             {
-                Moves = PossibleMoves(selected);
-                if (Moves.Any())
-                {
-                    selected.Select();
-                    foreach (var move in Moves)
-                    {
-                        Squares.First(s => s.Index == move.Index).IsPossibleMove = true;
-                    }
-                }
+                Board.Select(selected.Square);
             }
-            else 
+            else if (Selected.Index == selected.Index) // Clic sur la même pièce sélectionnée
             {
-                var move = Moves.FirstOrDefault(_ => _.Index == index);
-                if (move != null)
-                {
-
-                    if (Board.Move(Selected.Square, move))
-                    {
-                        string whiteTakenPieces = string.Empty;
-                        string blackTakenPieces = string.Empty;
-                        foreach (var piece in Board.Takens)
-                        {
-                            if (piece.IsWhite)
-                            {
-                                whiteTakenPieces += piece.ToPieceSymbol();
-                            }
-                            else
-                            {
-                                blackTakenPieces += piece.ToPieceSymbol();
-                            }
-                        }
-                        WhiteTakenPieces = whiteTakenPieces;
-                        BlackTakenPieces = blackTakenPieces;
-
-                        var previousSelect = Selected;
-                        if (move.Piece != null)
-                        {
-                            selected.Set(move.Piece);
-                            previousSelect.Empty();
-                        }
-
-                        previousSelect.Unselect();
-                        selected.Unselect();
-                        Moves = new List<Square>();
-                    }
-                }
-                Squares.ForEach(_ =>
-                {
-                    _.IsPossibleMove = false;
-                    _.Unselect();
-                });
+                Board.Unselect();
             }
+            else
+            {
+                if (Board.Move(Selected.Square, selected.Square))
+                {
+                    string whiteTakenPieces = string.Empty;
+                    string blackTakenPieces = string.Empty;
+                    foreach (var piece in Board.Takens)
+                    {
+                        if (piece.IsWhite)
+                        {
+                            whiteTakenPieces += piece.ToPieceSymbol();
+                        }
+                        else
+                        {
+                            blackTakenPieces += piece.ToPieceSymbol();
+                        }
+                    }
+                    WhiteTakenPieces = whiteTakenPieces;
+                    BlackTakenPieces = blackTakenPieces;
+                 }
+            }
+
+            Squares.ForEach(_ => _.Hint());
         }
-        private List<Square> Moves;
+
+
+        /// <summary>
+        /// Double clic sur une case de l'échiquier
+        /// </summary>
+        public void DoubleClick(int index)
+        {
+            Board.DoubleClick(GetSquare(index).Square);
+            Squares.ForEach(_ => _.Hint());
+        }
     }
 }
