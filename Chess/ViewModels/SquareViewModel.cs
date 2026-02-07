@@ -1,6 +1,8 @@
 ﻿using Business;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Maui.ApplicationModel.DataTransfer;
+using static Business.Piece;
 
 namespace Chess.ViewModels
 {
@@ -140,7 +142,7 @@ namespace Chess.ViewModels
         /// <summary>
         /// VRAI, si la pièce sélectionnée peut se déplacer à cet endroit
         /// </summary>
-        public bool IsPossibleMove
+        public bool IsAuthorizedMove
         {
             get => _isPossibleMove;
             set
@@ -148,11 +150,53 @@ namespace Chess.ViewModels
                 if (_isPossibleMove != value)
                 {
                     _isPossibleMove = value;
-                    OnPropertyChanged(nameof(IsPossibleMove));
+                    OnPropertyChanged(nameof(IsAuthorizedMove));
                 }
             }
         }
         private bool _isPossibleMove;
+
+        public Color BorderMoveColor
+        {
+            get => _borderMoveColor ?? Colors.Transparent;
+            private set
+            {
+                if (_borderMoveColor != value)
+                {
+                    _borderMoveColor = value;
+                    OnPropertyChanged(nameof(BorderMoveColor));
+                }
+            }
+        }
+        private Color? _borderMoveColor;
+
+        public Color MoveColor
+        {
+            get => _moveColor ?? Colors.Transparent;
+            private set
+            {
+                if (_moveColor != value)
+                {
+                    _moveColor = value;
+                    OnPropertyChanged(nameof(MoveColor));
+                }
+            }
+        }
+        private Color? _moveColor;
+
+        public bool ShowBorder
+        {
+            get => _isBestMoveTarget;
+            private set
+            {
+                if (_isBestMoveTarget != value)
+                {
+                    _isBestMoveTarget = value;
+                    OnPropertyChanged(nameof(ShowBorder));
+                }
+            }
+        }
+        private bool _isBestMoveTarget;
 
         #endregion
 
@@ -176,40 +220,32 @@ namespace Chess.ViewModels
             _boardViewModel.Select(Index);
         }
 
-        /// <summary>
-        /// Sélection de la case
-        /// </summary>
-        public void Select()
+        [RelayCommand]
+        public void OnDoubleClickSquare()
         {
-            IsSelected = true; // Indiquer à la vue la sélection
-            Square.Select(); // Indiquer à la classe business la sélection
+            _boardViewModel.DoubleClick(Index);
         }
 
-        /// <summary>
-        /// Déselection de la case
-        /// </summary>
-        public void Unselect()
+        public void Hint()
         {
-            IsSelected = false; // Indiquer à la vue la désélection
-            Square.Unselect(); // Indiquer à la classe business la sélection
-        }
-
-        /// <summary>
-        /// La case est vide
-        /// </summary>
-        public void Empty()
-        {
-            PieceColor = Colors.Transparent;
-            PieceSymbol = string.Empty;
-        }
-
-        /// <summary>
-        /// Positionner une pièce sur la case
-        /// </summary>
-        public void Set(Piece piece)
-        {
-            PieceColor = piece!.IsWhite ? Colors.White : Colors.Black;
-            PieceSymbol = piece.ToPieceSymbol();
+            if (Square.IsWarning)
+            {
+                BorderMoveColor = Colors.Red;
+            }
+            else if (Square.IsBestMove)
+            {
+                BorderMoveColor = Colors.LimeGreen;
+            }
+            else
+            {
+                BorderMoveColor = Colors.Transparent;
+            }
+            PieceColor = Square.HasPiece ? (Square.Piece!.IsWhite ? Colors.White : Colors.Black) : Colors.Transparent;
+            PieceSymbol = Square.Piece != null ? Square.Piece.ToPieceSymbol() : string.Empty;
+            IsSelected = Square.IsSelected;
+            MoveColor = Square.IsBadMove ? Colors.Red : Square.IsAuthorizedMove ? Colors.LightGreen : Colors.Transparent;
+            ShowBorder = BorderMoveColor != Colors.Transparent;
+            IsAuthorizedMove = MoveColor != Colors.Transparent;
         }
     }
 }
