@@ -208,6 +208,22 @@ namespace Chess.ViewModels
             PieceSymbol = square.Piece?.ToPieceSymbol() ?? string.Empty;
             PieceColor = square.HasPiece ? (square.Piece!.IsWhite ? Colors.White : Colors.Black) : Colors.Transparent;
             IsSelected = false;
+            if (square.IsWarning)
+            {
+                BorderMoveColor = Colors.Red;
+            }
+            else if (square.IsBestMove)
+            {
+                BorderMoveColor = Colors.LimeGreen;
+            }
+            else
+            {
+                BorderMoveColor = Colors.Transparent;
+            }
+            MoveColor = square.IsBadMove ? Colors.Red : square.IsAuthorizedMove ? Colors.LightGreen : Colors.Transparent;
+            ShowBorder = BorderMoveColor != Colors.Transparent;
+            IsAuthorizedMove = MoveColor != Colors.Transparent;
+
             _boardViewModel = board;
         }
 

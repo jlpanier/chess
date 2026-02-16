@@ -21,16 +21,16 @@ namespace Chess
             }
             catch (FileNotFoundException)
             {
-                //var asset = ServiceHelper.GetService<IAssetService>();
-                //await asset.EnsureAssetCopiedAsync("CHESS.sqlite", architecture.DbPath);
+                var asset = ServiceHelper.GetService<IAssetService>();
+                await asset.EnsureAssetCopiedAsync("CHESS.sqlite", architecture.DbPath);
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Erreur d'initialisation de la base de données : " + ex.Message);
-                if (!ChessDbo.Instance.IsReady())
+                if (!PositionDbo.Instance.IsReady())
                 {
-                    //var asset = ServiceHelper.GetService<IAssetService>();
-                    //await asset.EnsureAssetCopiedAsync("Chess.sqlite", architecture.DbPath);
+                    var asset = ServiceHelper.GetService<IAssetService>();
+                    await asset.EnsureAssetCopiedAsync("CHESS.sqlite", architecture.DbPath);
                 }
             }
         }

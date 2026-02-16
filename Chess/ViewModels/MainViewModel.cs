@@ -1,9 +1,13 @@
 ﻿using Business;
+using Chess.Interfaces;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using DevExpress.Android.Charts;
 using DevExpress.Maui.Mvvm;
+using FFImageLoading.Helpers;
+using Repository.Dbo;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.Text;
 
 namespace Chess.ViewModels
 {
@@ -79,6 +83,24 @@ namespace Chess.ViewModels
             Board = new Board();
         }
 
+        [RelayCommand]
+        private async Task Download()
+        {
+            try
+            {
+                var saver = ServiceHelper.GetService<IFileSaver>();
+                if (File.Exists(PositionDbo.DbPath))
+                {
+                    await saver.SaveToDownloadsAsync(Path.GetFileName(PositionDbo.DbPath), File.ReadAllBytes(BaseDbo.DbPath));
+                    //saver.Download(PositionDbo.DbPath);
+                    await ServiceHelper.GetService<IAlertService>().ShowAlertAsync("Chess", "Base de données dans Downloads", "Ok");
+                }
+            }
+            catch (Exception ex)
+            {
+                await ServiceHelper.GetService<IAlertService>().ShowAlertAsync("Chess", ex.Message, "Ok");
+            }
+        }
 
         [RelayCommand]
         private void ResetGame()
@@ -92,14 +114,23 @@ namespace Chess.ViewModels
         /// </summary>
         public void NewGame()
         {
+            var sw = new Stopwatch();
+            sw.Start();
+            var sb = new StringBuilder();
+
             Board.NewGame();
+            sb.Append($"{sw.ElapsedMilliseconds} ");
+
             var items = new List<SquareViewModel>();
             if(Board.Squares == null) return;
+            
             foreach (var square in Board.Squares)
             {
                 items.Add(new SquareViewModel(this, square));
             }
+            sb.Append($"{sw.ElapsedMilliseconds} ");
             Squares = new ObservableCollection<SquareViewModel>(items);
+            sb.Append($"{sw.ElapsedMilliseconds} ");
         }
 
 
