@@ -37,6 +37,8 @@ namespace Business
         /// </summary>
         public Piece? Piece { get; set; }
 
+        public string Position => $"{(char)('a' + Column)}{Row+1}";
+
         public Square(int index)
         {
             Index = index;
@@ -48,6 +50,16 @@ namespace Business
             Index = index;
             Piece = piece;
         }
+
+        public static Square Copy(Square source) => new Square(source.Index)
+        {
+            IsAuthorizedMove = source.IsAuthorizedMove,
+            IsBadMove= source.IsBadMove,
+            IsSelected = source.IsSelected,
+            IsBestMove = source.IsBestMove,
+            IsWarning = source.IsWarning,
+            Piece = source.Piece == null ? null : Piece.Copy(source.Piece),
+        };
 
         /// <summary>
         /// Sélection de la pièce

@@ -16,7 +16,7 @@
             throw new NotImplementedException();
         }
 
-            Task<string?> IFileSaver.SaveToDownloadsAsync(string filename, byte[] data)
+        Task<string?> IFileSaver.SaveToDownloadsAsync(string filename, byte[] data)
         {
 #if ANDROID
             return Chess.ForAndroid.FileSaver.SaveToDownloadsAsync(filename, data);

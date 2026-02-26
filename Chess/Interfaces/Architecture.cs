@@ -30,7 +30,7 @@ namespace Chess.Interfaces
             Directory.CreateDirectory(MapPath);
 
             // Le nom de la base de données est de facto celui des resources/Raw
-            ChessDbo.Instance.Init(Path.Combine(DbPath,"CHESS.sqlite"));
+            PositionDbo.Instance.Init(Path.Combine(DbPath,"CHESS.sqlite"));
         }
 
         /// <summary>

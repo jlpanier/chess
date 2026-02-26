@@ -30,7 +30,7 @@
         }
 
         /// <summary>
-        /// Types de pièce
+        /// Types de pièce: King, Queen, Rook, Bishop, Knight, Pawn
         /// </summary>
         public PieceType Type { get; }
 
@@ -60,6 +60,8 @@
             Color = color;
             HasMoved = hasMoved;
         }
+
+        public static Piece Copy(Piece source) => new(source.Type, source.Color, source.HasMoved);
 
         /// <summary>
         /// VRAI, si la pièce de même couleur que l'autre pièce

@@ -194,6 +194,22 @@
             </Grid>
         </Border>
 
+        <Button
+            Text="&#x1F4BE;"
+            Grid.Row="2"
+            FontSize="20"
+            BackgroundColor="DodgerBlue"
+            CornerRadius="25"
+            WidthRequest="40"
+            HeightRequest="40"
+            Command="{Binding DownloadCommand}"
+            HorizontalOptions="Start"
+            VerticalOptions="End"
+            Shadow="{Shadow Brush=Black, Opacity=0.4, Radius=10}"
+            Margin="10,10,10,10"
+            Padding="5,5,5,10"
+            />
+        
         <Button 
             Text="↺"
             Grid.Row="2"
@@ -202,6 +218,7 @@
             Margin="5,5,5,5"
             Command="{Binding ResetGameCommand}"
             BackgroundColor="#B22222"
+            Shadow="{Shadow Brush=Black, Opacity=0.4, Radius=10}"
             TextColor="White"
             WidthRequest="40"
             HeightRequest="40"

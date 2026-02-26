@@ -20,5 +20,23 @@ namespace Business
                 _ => ""
             };
         }
+
+        /// <summary>
+        /// Affichage de la pièce sous forme de symbole Unicode.
+        /// </summary>
+        public static string ToLetterPiece(this Piece piece)
+        {
+            return piece switch
+            {
+                { Type: PieceType.King } => "K",
+                { Type: PieceType.Queen } => "Q",
+                { Type: PieceType.Rook } => "R",
+                { Type: PieceType.Bishop } => "B",
+                { Type: PieceType.Knight } => "K",
+                { Type: PieceType.Pawn } => "P",
+                _ => ""
+            };
+        }
     }
 }
+

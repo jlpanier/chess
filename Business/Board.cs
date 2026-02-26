@@ -1,4 +1,8 @@
-﻿using static Business.Piece;
+﻿using Repository.Dbo;
+using Repository.Entities;
+using System.Runtime.InteropServices;
+using System.Text;
+using static Business.Piece;
 
 namespace Business
 {
@@ -35,8 +39,9 @@ namespace Business
         public Board()
         {
             Squares = new Square[0];
-            NewGame();
         }
+
+        public Moves Moves { get; private set; } = new Moves();
 
         /// <summary>
         /// Rafraichir le plateau pour une nouvelle partie
@@ -111,11 +116,12 @@ namespace Business
                 new Square(62, new Piece(PieceType.Knight, PieceColor.Black)),
                 new Square(63, new Piece(PieceType.Rook, PieceColor.Black))
             };
+            SetInfo();
         }
 
         public void Unselect()
         {
-            foreach(var item in Squares)
+            foreach (var item in Squares)
             {
                 item.Unselect();
             }
@@ -127,9 +133,9 @@ namespace Business
         /// </summary>
         public void Select(Square square)
         {
-            if (square.Piece!=null && Playing == square.Piece.Color)
+            if (square.Piece != null && Playing == square.Piece.Color)
             {
-                var moves = AuthorizeMoves(square);
+                var moves = AuthorizedMoves(square);
                 foreach (var item in Squares)
                 {
                     item.Unselect();
@@ -137,6 +143,7 @@ namespace Business
                 }
                 square.Select();
             }
+            SetInfo();
         }
 
         /// <summary>
@@ -144,8 +151,11 @@ namespace Business
         /// </summary>
         /// <param name="square"></param>
         /// <returns></returns>
-        private List<Square> AuthorizeMoves(Square square)
+        private List<Square> AuthorizedMoves(Square square)
         {
+            System.Diagnostics.Debug.Assert(Squares != null);
+            System.Diagnostics.Debug.Assert(Squares.Length>60);
+
             var result = new List<Square>();
             if (square.Piece != null && square.Piece.Color == Playing)
             {
@@ -170,6 +180,59 @@ namespace Business
                                         // sauf si echec
                                         result.Add(to);
                                     }
+                                }
+                            }
+                        }
+                        // Prise en compte du roque
+                        if (square.Column == 3) // Le roi est forcément sur la colonne 3
+                        {
+                            if (square.Piece.IsWhite)
+                            {
+                                if (Squares[0] != null
+                                    && Squares[0].Piece != null
+                                    && Squares[1].Piece == null
+                                    && Squares[2].Piece == null
+                                    && Squares[0].Piece.Type == Piece.PieceType.Rook
+                                    && Squares[0].Piece.IsWhite)
+                                {
+                                    // sauf si echec
+                                    result.Add(Squares[1]);
+                                }
+                                else if (Squares[7] != null
+                                    && Squares[7].Piece != null
+                                    && Squares[7].Piece.Type == Piece.PieceType.Rook
+                                    && Squares[6].Piece == null
+                                    && Squares[5].Piece == null
+                                    && Squares[4].Piece == null
+                                    && Squares[7].Piece.IsWhite)
+                                {
+                                    // sauf si echec
+                                    result.Add(Squares[5]);
+                                }
+                            }
+                            else
+                            {
+                                if (Squares[56] != null
+                                    && Squares[56].Piece != null
+                                    && Squares[56].Piece.Type == Piece.PieceType.Rook
+                                    && Squares[56].Piece.IsBlack
+                                    && Squares[57].Piece == null
+                                    && Squares[58].Piece == null)
+                                {
+                                    // sauf si echec
+                                    result.Add(Squares[57]);
+                                }
+                                else if (Squares[63] != null
+                                    && Squares[63].Piece != null
+                                    && Squares[63].Piece.IsBlack 
+                                    && Squares[63].Piece.Type == Piece.PieceType.Rook
+                                    && Squares[62].Piece == null
+                                    && Squares[61].Piece == null
+                                    && Squares[60].Piece == null
+                                    )
+                                {
+                                    // sauf si echec
+                                    result.Add(Squares[61]);
                                 }
                             }
                         }
@@ -363,28 +426,113 @@ namespace Business
         public bool Move(Square from, Square to)
         {
             bool result = false;
-            if (from != null && to != null)
+            if (from != null && from.Piece != null && to != null)
             {
-                var moves = AuthorizeMoves(from);
-                if (moves.Any(_=>_.Index==to.Index))
+                var moves = AuthorizedMoves(from);
+                if (moves.Any(_ => _.Index == to.Index))
                 {
+                    var move = Moves.Add(from, to);
+                    PositionDbo.Instance.Save(new PositionEntity()
+                    {
+                        ID = Position,
+                        BAD = Bad,
+                        BEST = Best,
+                        DATEMAJ = DateTime.Now,
+                        WARN = Warn,
+                    });
+
                     if (to.Piece != null)
                     {
                         Takens.Add(to.Piece);
                     }
                     to.Piece = from.Piece;
                     from.Piece = null;
+
+                    // Dans le cas d'un roque, les tours changent de places
+                    if (move.IsCastleKingSide)
+                    {
+                        if (from.Index == 3 && to.Index == 1)
+                        {
+                            Moves.Add(Squares[0], Squares[2]);
+                            Squares[2].Piece = Squares[0].Piece;
+                            Squares[0].Piece = null;
+                        }
+                        else if (from.Index == 59 && to.Index == 57)
+                        {
+                            Moves.Add(Squares[56], Squares[58]);
+                            Squares[58].Piece = Squares[56].Piece;
+                            Squares[56].Piece = null;
+                        }
+                    }
+                    else if (move.IsCastleQueenSide)
+                    {
+                        if (from.Index == 3 && to.Index == 5)
+                        {
+                            Moves.Add(Squares[7], Squares[4]);
+                            Squares[4].Piece = Squares[7].Piece;
+                            Squares[7].Piece = null;
+                        }
+                        else if (from.Index == 59 && to.Index == 61)
+                        {
+                            Moves.Add(Squares[63], Squares[60]);
+                            Squares[60].Piece = Squares[63].Piece;
+                            Squares[63].Piece = null;
+                        }
+                    }
+
                     Playing = Playing == PieceColor.White ? PieceColor.Black : PieceColor.White;
 
                     foreach (var item in Squares)
                     {
                         item.Unselect();
                     }
+                    SetInfo();
 
                     result = true;
                 }
             }
             return result;
+        }
+
+        private void SetInfo()
+        {
+            var positions = PositionDbo.Instance.GetByPosition(Position);
+            if (positions.Any())
+            {
+                foreach (var position in positions) // only one
+                {
+                    if (!string.IsNullOrEmpty(position.BAD))
+                    {
+                        foreach (var data in position.BAD.Split(' '))
+                        {
+                            if (int.TryParse(data, out var index) && index >= 0 && index < 64)
+                            {
+                                Squares[index].IsBadMove = true;
+                            }
+                        }
+                    }
+                    if (!string.IsNullOrEmpty(position.WARN))
+                    {
+                        foreach (var data in position.WARN.Split(' '))
+                        {
+                            if (int.TryParse(data, out var index) && index >= 0 && index < 64)
+                            {
+                                Squares[index].IsWarning = true;
+                            }
+                        }
+                    }
+                    if (!string.IsNullOrEmpty(position.BEST))
+                    {
+                        foreach (var data in position.BEST.Split(' '))
+                        {
+                            if (int.TryParse(data, out var index) && index >= 0 && index < 64)
+                            {
+                                Squares[index].IsBestMove = true;
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -398,7 +546,7 @@ namespace Business
             {
                 if (square.Piece != null && Playing == square.Piece.Color)
                 {
-                    var moves = AuthorizeMoves(square);
+                    var moves = AuthorizedMoves(square);
                     foreach (var item in Squares)
                     {
                         item.Unselect();
@@ -410,17 +558,17 @@ namespace Business
             }
             else
             {
-                var moves = AuthorizeMoves(selected);
+                var moves = AuthorizedMoves(selected);
                 var bestmove = moves.FirstOrDefault(_ => _.IsBestMove);
-                if (bestmove==null)
+                if (bestmove == null)
                 {
                     moves.ForEach(_ => _.IsBestMove = _.Index == square.Index);
                 }
-                else if(bestmove.Index == square.Index)
+                else if (bestmove.Index == square.Index)
                 {
                     bestmove.IsBestMove = false;
                 }
-                else if (moves.Any(_=>_.Index == square.Index))
+                else if (moves.Any(_ => _.Index == square.Index))
                 {
                     square.IsBadMove = !square.IsBadMove;
                 }
@@ -429,6 +577,65 @@ namespace Business
                     square.IsWarning = !square.IsWarning;
                 }
 
+            }
+        }
+
+        private string Position
+        {
+            get
+            {
+                var sb = new StringBuilder();
+                foreach (var square in Squares.ToList().Where(_ => _.Piece != null && _.Piece.IsWhite).OrderBy(_ => _.Piece!.Type))
+                {
+                    System.Diagnostics.Debug.Assert(square.Piece != null);
+                    sb.Append($"{square.Piece.ToLetterPiece()}{square.Position}");
+                }
+                foreach (var square in Squares.ToList().Where(_ => _.Piece != null && _.Piece.IsBlack).OrderBy(_ => _.Piece!.Type))
+                {
+                    System.Diagnostics.Debug.Assert(square.Piece != null);
+                    sb.Append($"{square.Piece.ToLetterPiece()}{square.Position}");
+                }
+                return sb.ToString();
+            }
+        }
+
+        private string Bad
+        {
+            get
+            {
+                var sb = new StringBuilder();
+                foreach (var square in Squares.Where(_ => _.IsBadMove))
+                {
+                    sb.Append($"{square.Index} ");
+                }
+                return sb.ToString().Trim();
+            }
+        }
+
+        private string Best
+        {
+            get
+            {
+                var sb = new StringBuilder();
+                foreach (var square in Squares.Where(_ => _.IsBestMove))
+                {
+                    sb.Append($"{square.Index} ");
+                }
+                return sb.ToString().Trim();
+
+            }
+        }
+
+        private string Warn
+        {
+            get
+            {
+                var sb = new StringBuilder();
+                foreach (var square in Squares.Where(_ => _.IsWarning))
+                {
+                    sb.Append($"{square.Index} ");
+                }
+                return sb.ToString().Trim();
             }
         }
     }

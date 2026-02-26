@@ -44,12 +44,7 @@ namespace Repository.Dbo
             DbPath = databasePath;
             if (!File.Exists(DbPath)) throw new FileNotFoundException("File does not exists", DbPath);
             Db.BusyTimeout = TimeSpan.FromSeconds(busyTimeout);
-            CreateTable<ShareEntity>();
-            AddColumn("SHARE", "AMOUNT", "REAL");
-            AddColumn("SHARE", "RISK", "REAL");
-            AddColumn("SHARE", "CONSENSUS", "REAL");
-            AddColumn("SHARE", "RENDEMENT", "REAL");
-            AddColumn("SHARE", "DATEON", "DATETIME");
+            CreateTable<PositionEntity>();
         }
 
         public void Close()
