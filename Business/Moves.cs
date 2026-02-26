@@ -3,23 +3,41 @@
 
 namespace Business
 {
+    /// <summary>
+    /// Gestion des déplacements des pièces
+    /// </summary>
     public class Moves
     {
+        /// <summary>
+        /// Liste des déplacements des pièces
+        /// </summary>
         public List<Move> Items { get; private set; }
-        
-        public int Index { get; private set; }
+
+        /// <summary>
+        /// Référence du mouvement
+        /// </summary>
+        private int Index;
+
         public Moves() 
         {
             Items = new List<Move>();
             Index = 0;
         }
 
-        public void Add(Square from, Square to)
+        /// <summary>
+        /// Nouveau mouvement
+        /// </summary>
+        public Move Add(Square from, Square to)
         {
             Index++;
-            Items.Add(new Move(Index, from, to));
+            var move = new Move(Index, from, to);
+            Items.Add(move);
+            return move;
         }
 
+        /// <summary>
+        /// Clef identifiant ce mouvement
+        /// </summary>
         public string Key
         {
             get

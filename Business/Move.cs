@@ -2,22 +2,49 @@
 
 namespace Business
 {
+    /// <summary>
+    /// Information sur le déplacement des pièces
+    /// </summary>
     public class Move
     {
+        /// <summary>
+        /// Déplacement référence
+        /// </summary>
         public readonly int Number;
 
+        /// <summary>
+        /// Case de départ
+        /// </summary>
         public readonly Square From;
 
+        /// <summary>
+        /// Case d'arrivée
+        /// </summary>
         public readonly Square To;
 
-        private readonly bool IsCastleKingSide;
+        /// <summary>
+        /// Vrai si mouvement roque côté du roi
+        /// </summary>
+        public readonly bool IsCastleKingSide;
 
-        private readonly bool IsCastleQueenSide;
+        /// <summary>
+        /// Vrai si mouvement roque côté du reine
+        /// </summary>
+        public readonly bool IsCastleQueenSide;
 
+        /// <summary>
+        /// Vrai si mouvement capture une pièce
+        /// </summary>
         private readonly bool IsCapture;
 
+        /// <summary>
+        /// Vrai si mouvement d'un pion en dernière ligne donne une promotion
+        /// </summary>
         private readonly bool IsPromotion;
 
+        /// <summary>
+        /// Déclaration du mouvement
+        /// </summary>
         public Move(int moveno, Square from, Square to)
         {
             Number  = moveno;
@@ -33,6 +60,9 @@ namespace Business
             IsPromotion = From.Piece.Type == Piece.PieceType.Pawn && (To.Row == 0 || To.Row == 7);
         }
 
+        /// <summary>
+        /// Affichage du mouvement
+        /// </summary>
         public override string ToString()
         {
             if (string.IsNullOrEmpty(_toString))
