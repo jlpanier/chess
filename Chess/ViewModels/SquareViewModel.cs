@@ -242,7 +242,7 @@ namespace Chess.ViewModels
             _boardViewModel.DoubleClick(Index);
         }
 
-        public void Hint()
+        public void NotifyDataChanged()
         {
             if (Square.IsWarning)
             {

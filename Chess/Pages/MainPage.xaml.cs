@@ -1,4 +1,6 @@
 ﻿using Chess.ViewModels;
+using CommunityToolkit.Maui;
+using CommunityToolkit.Maui.Extensions;
 using Repository.Dbo;
 using System.Diagnostics;
 using System.Text;
@@ -44,9 +46,9 @@ namespace Chess.Pages
                     await Task.Delay(100);
                 }
                 sb.Append($"{sw.ElapsedMilliseconds} [{times}]");
-                vm.NewGame();
-                sb.Append($"{sw.ElapsedMilliseconds} ");
+                // pas de NewGame car le refraichissement de la popup de promotion rafraichiraie cet écran
             }
+
         }
 
     }

@@ -33,6 +33,16 @@ namespace Business
         public bool IsSelected { get; private set; }
 
         /// <summary>
+        /// VRAI, si la pièce est un pion
+        /// </summary>
+        private bool IsPawn => Piece != null && Piece.Type == PieceType.Pawn;
+
+        /// <summary>
+        /// VRAI, si la piece sélectionnée est un pion est promu
+        /// </summary>
+        public bool IsPromotion => IsPawn && Piece != null && ((Piece.IsBlack && Row == 1) || (Piece.IsWhite && Row == 6));
+
+        /// <summary>
         /// Pièce occupée sur cette case de l'échiquier
         /// </summary>
         public Piece? Piece { get; set; }

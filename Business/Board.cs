@@ -423,73 +423,80 @@ namespace Business
         /// <summary>
         /// Déplacement d'une pièce d'une case à une autre
         /// </summary>
-        public bool Move(Square from, Square to)
+        public bool Move(Square from, Square to, PieceType? promotiontype = null)
         {
             bool result = false;
-            if (from != null && from.Piece != null && to != null)
+            System.Diagnostics.Debug.Assert(from.Piece != null, "Pièce de départ obligatoire");
+            var moves = AuthorizedMoves(from);
+            if (moves.Any(_ => _.Index == to.Index))
             {
-                var moves = AuthorizedMoves(from);
-                if (moves.Any(_ => _.Index == to.Index))
+                var move = Moves.Add(from, to);
+                PositionDbo.Instance.Save(new PositionEntity()
                 {
-                    var move = Moves.Add(from, to);
-                    PositionDbo.Instance.Save(new PositionEntity()
-                    {
-                        ID = Position,
-                        BAD = Bad,
-                        BEST = Best,
-                        DATEMAJ = DateTime.Now,
-                        WARN = Warn,
-                    });
+                    ID = Position,
+                    BAD = Bad,
+                    BEST = Best,
+                    DATEMAJ = DateTime.Now,
+                    WARN = Warn,
+                });
 
-                    if (to.Piece != null)
-                    {
-                        Takens.Add(to.Piece);
-                    }
-                    to.Piece = from.Piece;
-                    from.Piece = null;
-
-                    // Dans le cas d'un roque, les tours changent de places
-                    if (move.IsCastleKingSide)
-                    {
-                        if (from.Index == 3 && to.Index == 1)
-                        {
-                            Moves.Add(Squares[0], Squares[2]);
-                            Squares[2].Piece = Squares[0].Piece;
-                            Squares[0].Piece = null;
-                        }
-                        else if (from.Index == 59 && to.Index == 57)
-                        {
-                            Moves.Add(Squares[56], Squares[58]);
-                            Squares[58].Piece = Squares[56].Piece;
-                            Squares[56].Piece = null;
-                        }
-                    }
-                    else if (move.IsCastleQueenSide)
-                    {
-                        if (from.Index == 3 && to.Index == 5)
-                        {
-                            Moves.Add(Squares[7], Squares[4]);
-                            Squares[4].Piece = Squares[7].Piece;
-                            Squares[7].Piece = null;
-                        }
-                        else if (from.Index == 59 && to.Index == 61)
-                        {
-                            Moves.Add(Squares[63], Squares[60]);
-                            Squares[60].Piece = Squares[63].Piece;
-                            Squares[63].Piece = null;
-                        }
-                    }
-
-                    Playing = Playing == PieceColor.White ? PieceColor.Black : PieceColor.White;
-
-                    foreach (var item in Squares)
-                    {
-                        item.Unselect();
-                    }
-                    SetInfo();
-
-                    result = true;
+                if (to.Piece != null)
+                {
+                    Takens.Add(to.Piece);
                 }
+                if (promotiontype!=null)
+                {
+                    System.Diagnostics.Debug.Assert(promotiontype != null, "La promotion du pion doit être indiquée");
+                    System.Diagnostics.Debug.Assert(from.Piece.Type == PieceType.Pawn, "Pièce de départ obligatoirement un pion lors de la promotion");
+                    to.Piece = new Piece(promotiontype ?? PieceType.Queen, from.Piece.Color, true);
+                }
+                else
+                {
+                    to.Piece = from.Piece;
+                }
+                from.Piece = null;
+
+                // Dans le cas d'un roque, les tours changent de places
+                if (move.IsCastleKingSide)
+                {
+                    if (from.Index == 3 && to.Index == 1)
+                    {
+                        Moves.Add(Squares[0], Squares[2]);
+                        Squares[2].Piece = Squares[0].Piece;
+                        Squares[0].Piece = null;
+                    }
+                    else if (from.Index == 59 && to.Index == 57)
+                    {
+                        Moves.Add(Squares[56], Squares[58]);
+                        Squares[58].Piece = Squares[56].Piece;
+                        Squares[56].Piece = null;
+                    }
+                }
+                else if (move.IsCastleQueenSide)
+                {
+                    if (from.Index == 3 && to.Index == 5)
+                    {
+                        Moves.Add(Squares[7], Squares[4]);
+                        Squares[4].Piece = Squares[7].Piece;
+                        Squares[7].Piece = null;
+                    }
+                    else if (from.Index == 59 && to.Index == 61)
+                    {
+                        Moves.Add(Squares[63], Squares[60]);
+                        Squares[60].Piece = Squares[63].Piece;
+                        Squares[63].Piece = null;
+                    }
+                }
+
+                Playing = Playing == PieceColor.White ? PieceColor.Black : PieceColor.White;
+
+                foreach (var item in Squares)
+                {
+                    item.Unselect();
+                }
+                SetInfo();
+
+                result = true;
             }
             return result;
         }
