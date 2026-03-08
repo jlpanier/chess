@@ -387,6 +387,26 @@ namespace Business
                                 {
                                     result.Add(Squares[captureRightIndex]);
                                 }
+                                // Recherche de la prise du pion en passant
+                                if (square.Row == 4) // pion blanc
+                                {
+                                    var move = Moves.Last();
+                                    if (move!=null 
+                                        && move.From.Piece != null 
+                                        && move.From.Piece.Type == PieceType.Pawn 
+                                        && move.From.Piece.Color == PieceColor.Black 
+                                        && move.From.Row == 6 && move.To.Row == 4)
+                                    {
+                                        if (move.To.Column == square.Column - 1) // prise en passant à gauche
+                                        {
+                                            result.Add(Squares[move.To.Index + 8]);
+                                        }
+                                        else if (move.To.Column == square.Column + 1) // prise en passant à droite
+                                        {
+                                            result.Add(Squares[move.To.Index + 8]);
+                                        }
+                                    }
+                                }
                                 break;
                             case PieceColor.Black:
                                 forwardIndex = square.Index - 8;
@@ -411,6 +431,25 @@ namespace Business
                                 if (square.Column < 7 && captureRightIndex >= 0 && Squares[captureRightIndex].Piece != null && Squares[captureRightIndex].Piece!.Color == PieceColor.White)
                                 {
                                     result.Add(Squares[captureRightIndex]);
+                                }
+                                if (square.Row == 3) // pion noire
+                                {
+                                    var move = Moves.Last();
+                                    if (move != null
+                                        && move.From.Piece != null
+                                        && move.From.Piece.Type == PieceType.Pawn
+                                        && move.From.Piece.Color == PieceColor.White
+                                        && move.From.Row == 1 && move.To.Row == 3)
+                                    {
+                                        if (move.To.Column == square.Column - 1) // prise en passant à gauche
+                                        {
+                                            result.Add(Squares[move.To.Index - 8]);
+                                        }
+                                        else if (move.To.Column == square.Column + 1) // prise en passant à droite
+                                        {
+                                            result.Add(Squares[move.To.Index - 8]);
+                                        }
+                                    }
                                 }
                                 break;
                         }
@@ -453,6 +492,24 @@ namespace Business
                 else
                 {
                     to.Piece = from.Piece;
+                }
+                if (move.IsPassingPawn)
+                {
+                    Square removePawn;
+                    switch (move.From.Piece!.Color)
+                    {
+                        case PieceColor.White:
+                            removePawn = Squares[to.Index - 8];
+                            Takens.Add(removePawn.Piece!);
+                            Squares[to.Index - 8].Piece = null;
+                            break;
+                        case PieceColor.Black:
+                            removePawn = Squares[to.Index + 8];
+                            Takens.Add(removePawn.Piece!);
+                            Squares[to.Index + 8].Piece = null; 
+                            break;
+                    }
+
                 }
                 from.Piece = null;
 

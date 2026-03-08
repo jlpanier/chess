@@ -41,6 +41,20 @@ namespace Business
         }
 
         /// <summary>
+        /// Dernier move
+        /// </summary>
+        public Move? Last()
+        {
+            Move? result = null;
+            if (Items.Any())
+            {
+                int number = Items.Max(_ => _.Number);
+                result = Items.FirstOrDefault(_=>_.Number == number);
+            }
+            return result;
+        }
+
+        /// <summary>
         /// Clef identifiant ce mouvement
         /// </summary>
         public string Key

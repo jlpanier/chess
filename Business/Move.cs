@@ -43,6 +43,11 @@ namespace Business
         private readonly bool IsPromotion;
 
         /// <summary>
+        /// Vrai si prise du pion en passant
+        /// </summary>
+        public readonly bool IsPassingPawn;
+
+        /// <summary>
         /// Déclaration du mouvement
         /// </summary>
         public Move(int moveno, Square from, Square to)
@@ -58,6 +63,7 @@ namespace Business
             IsCastleQueenSide = From.Piece.Type == Piece.PieceType.King && To.Column - From.Column > 1;
             IsCapture = To.Piece != null;
             IsPromotion = From.Piece.Type == Piece.PieceType.Pawn && (To.Row == 0 || To.Row == 7);
+            IsPassingPawn = From.Piece.Type == Piece.PieceType.Pawn && To.Piece == null && From.Column != To.Column;
         }
 
         /// <summary>
