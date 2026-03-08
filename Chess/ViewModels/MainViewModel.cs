@@ -117,12 +117,7 @@ namespace Chess.ViewModels
         /// </summary>
         public void NewGame()
         {
-            var sw = new Stopwatch();
-            sw.Start();
-            var sb = new StringBuilder();
-
             Board.NewGame();
-            sb.Append($"{sw.ElapsedMilliseconds} ");
 
             var items = new List<SquareViewModel>();
             if(Board.Squares == null) return;
@@ -132,9 +127,6 @@ namespace Chess.ViewModels
             {
                 Squares.Add(new SquareViewModel(this, square));
             }
-            sb.Append($"{sw.ElapsedMilliseconds} ");
-            //Squares = new ObservableCollection<SquareViewModel>(items);
-            sb.Append($"{sw.ElapsedMilliseconds} ");
         }
 
 
@@ -169,9 +161,9 @@ namespace Chess.ViewModels
                 {
                     ShowPromotionPopup(Selected, selected);
                 }
-                else
+                else if (!Move(Selected.Square, selected.Square))
                 {
-                    Move(Selected.Square, selected.Square);
+                    Board.Unselect();
                 }
             }
 
@@ -179,16 +171,19 @@ namespace Chess.ViewModels
         }
 
         /// <summary>
-        /// Déplacement d'une piecetype
+        /// Déplacement d'une piecetype, retourne VRAI si le mouvement est possible
         /// </summary>
         /// <param name="from"></param>
         /// <param name="to"></param>
-        private void Move(Square from, Square to)
+        private bool Move(Square from, Square to)
         {
+            bool result = false;
             if (Board.Move(from, to))
             {
+                result = true;
                 TakenPieces();
             }
+            return result;
         }
 
         /// <summary>

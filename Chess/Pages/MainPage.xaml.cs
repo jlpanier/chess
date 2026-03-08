@@ -1,9 +1,5 @@
 ﻿using Chess.ViewModels;
-using CommunityToolkit.Maui;
-using CommunityToolkit.Maui.Extensions;
 using Repository.Dbo;
-using System.Diagnostics;
-using System.Text;
 
 namespace Chess.Pages
 {
@@ -30,23 +26,20 @@ namespace Chess.Pages
         /// </summary>
         protected override async void OnAppearing()
         {
-            var sw = new Stopwatch();
-            sw.Start();
-            var sb = new StringBuilder();
             base.OnAppearing();
 
+            var times = 0;
+            while (!PositionDbo.Instance.IsReady())
+            {
+                times++;
+                await Task.Delay(100);
+            }
             if (BindingContext is MainViewModel vm)
             {
-                sb.Append($"{sw.ElapsedMilliseconds} ");
-
-                var times = 0;
-                while (!PositionDbo.Instance.IsReady())
+                if (!vm.Board.Moves.Any()) // Evites de rafraichir la partie en cours si on revient à la page principale (ou popup)
                 {
-                    times++;
-                    await Task.Delay(100);
+                    vm.NewGame();
                 }
-                sb.Append($"{sw.ElapsedMilliseconds} [{times}]");
-                // pas de NewGame car le refraichissement de la popup de promotion rafraichiraie cet écran
             }
         }
     }

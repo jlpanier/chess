@@ -9,6 +9,11 @@ namespace Business
     public class Moves
     {
         /// <summary>
+        /// Vrai, si un déplacement a été effectué  
+        /// </summary>
+        public bool Any() => Items.Any();
+
+        /// <summary>
         /// Liste des déplacements des pièces
         /// </summary>
         public List<Move> Items { get; private set; }
