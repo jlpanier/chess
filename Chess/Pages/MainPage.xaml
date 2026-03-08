@@ -3,6 +3,7 @@
     x:Class="Chess.Pages.MainPage"
     x:DataType="viewModels:MainViewModel"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:local="clr-namespace:Chess.Rendered"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:converter="clr-namespace:Chess.Converter"
     xmlns:viewModels="clr-namespace:Chess.ViewModels">
@@ -53,68 +54,69 @@
                     Background="#D8C3A5"
                     Padding="4">
 
+
                     <!-- Plateau 8×8 -->
+                    <local:SquareContentView HorizontalOptions="Fill" VerticalOptions="Center">
+                        
+                        <Grid RowSpacing="0" ColumnSpacing="0" BindableLayout.ItemsSource="{Binding Squares}">
 
-                        <Grid RowSpacing="0" ColumnSpacing="0"
-                      BindableLayout.ItemsSource="{Binding Squares}">
+                            <!-- 8 colonnes -->
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
 
-                        <!-- 8 colonnes -->
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
+                            <!-- 8 lignes -->
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
 
-                        <!-- 8 lignes -->
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="*" />
-                            <RowDefinition Height="*" />
-                            <RowDefinition Height="*" />
-                            <RowDefinition Height="*" />
-                            <RowDefinition Height="*" />
-                            <RowDefinition Height="*" />
-                            <RowDefinition Height="*" />
-                            <RowDefinition Height="*" />
-                        </Grid.RowDefinitions>
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="viewModels:SquareViewModel">
 
-                        <BindableLayout.ItemTemplate>
-                            <DataTemplate x:DataType="viewModels:SquareViewModel">
-
-                                <Grid 
+                                    <Grid 
                                     Grid.Row="{Binding Row}" 
                                     Grid.Column="{Binding Column}" 
                                     Margin="0,0,0,0"
                                     Padding="0,0,0,0">
 
-                                    <!-- Case -->
-                                    <Border 
+                                        <!-- Case -->
+                                        <Border 
                                         Background="{Binding Index, Converter={StaticResource SquareColorConverter}}"
                                         StrokeShape="Rectangle"
                                         StrokeThickness="0"
                                         Margin="0,0,0,0"
                                         Padding="0,0,0,0">
 
-                                        <Border.GestureRecognizers>
-                                            <TapGestureRecognizer Command="{Binding SelectSquareCommand}" />
-                                            <TapGestureRecognizer 
+                                            <Border.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding SelectSquareCommand}" />
+                                                <TapGestureRecognizer 
                                             NumberOfTapsRequired="2"
                                             Command="{Binding DoubleClickSquareCommand}" />
 
-                                        </Border.GestureRecognizers>
+                                            </Border.GestureRecognizers>
 
-                                        <AbsoluteLayout                                    
+                                            <AbsoluteLayout                                    
                                             Margin="0,0,0,0"
                                             Padding="0,0,0,0">
 
 
-                                            
-                                            <!-- Pièce -->
-                                            <Label 
+
+                                                <!-- Pièce -->
+                                                <Label 
                                                Text="{Binding PieceSymbol}"
                                                FontFamily="ChessMerida"
                                                FontSize="36"
@@ -125,8 +127,8 @@
                                                AbsoluteLayout.LayoutBounds="0.5,0.5,AutoSize,AutoSize"
                                                AbsoluteLayout.LayoutFlags="PositionProportional"/>
 
-                                            <!-- Rond plein au centre -->
-                                            <BoxView 
+                                                <!-- Rond plein au centre -->
+                                                <BoxView 
                                                 Color="{Binding MoveColor}"   
                                                 BackgroundColor="Transparent"
                                                 WidthRequest="12"
@@ -137,7 +139,7 @@
                                                 IsVisible="{Binding IsAuthorizedMove
                                                 }"/>
 
-                                            <Border 
+                                                <Border 
                                                 Stroke="{Binding BorderMoveColor}"
                                                 StrokeThickness="2"
                                                 StrokeShape="Rectangle"
@@ -147,10 +149,10 @@
                                                 AbsoluteLayout.LayoutFlags="All"
                                                 InputTransparent="True"
                                                 />
-                                            
 
-                                            <!-- Coordonnée colonne (a–h) -->
-                                            <Label Text="{Binding LetterColumn}"
+
+                                                <!-- Coordonnée colonne (a–h) -->
+                                                <Label Text="{Binding LetterColumn}"
                                                FontSize="10"
                                                TextColor="#D4AF37"
                                                Margin="1,0,0,0"
@@ -158,8 +160,8 @@
                                                VerticalOptions="Start"
                                                IsVisible="{Binding IsFirstRow}" />
 
-                                            <!-- Coordonnée ligne (1–8) -->
-                                            <Label Text="{Binding LetterRow}"
+                                                <!-- Coordonnée ligne (1–8) -->
+                                                <Label Text="{Binding LetterRow}"
                                                FontSize="10"
                                                TextColor="#D4AF37"
                                                Margin="1,0,0,0"
@@ -168,22 +170,25 @@
                                                IsVisible="{Binding IsFirstColumn}" />
 
 
-                                            
-                                        </AbsoluteLayout>
-                                    </Border>
 
-                                    <!-- Highlight -->
-                                    <Border Background="{Binding IsSelected, Converter={StaticResource SquareHighlightConverter}}"
+                                            </AbsoluteLayout>
+                                        </Border>
+
+                                        <!-- Highlight -->
+                                        <Border Background="{Binding IsSelected, Converter={StaticResource SquareHighlightConverter}}"
                                         InputTransparent="True" />
 
-                                </Grid>
+                                    </Grid>
 
-                            </DataTemplate>
-                        </BindableLayout.ItemTemplate>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
 
-                    </Grid>
+                        </Grid>
+ 
+                </local:SquareContentView>
 
                 </Border>
+                    
 
                 <Label Text="{Binding WhiteTakenPieces}"
                     Grid.Row="2"
