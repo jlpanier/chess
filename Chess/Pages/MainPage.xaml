@@ -16,10 +16,10 @@
         <viewModels:MainViewModel />
     </ContentPage.BindingContext>
 
-    <Grid RowDefinitions="*,Auto">
+    <Grid RowDefinitions="*,Auto,Auto">
         <Image Source="background.jpg" Aspect="AspectFill" />
-        
-        <Border Stroke="Brown"
+
+        <Border Grid.Row="0" Stroke="Brown"
             StrokeThickness="6"
             StrokeShape="Rectangle"
             Background="#D8C3A5"
@@ -54,31 +54,32 @@
                     Padding="4">
 
                     <!-- Plateau 8×8 -->
-                    <Grid RowSpacing="0" ColumnSpacing="0"
+
+                        <Grid RowSpacing="0" ColumnSpacing="0"
                       BindableLayout.ItemsSource="{Binding Squares}">
 
                         <!-- 8 colonnes -->
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="40" />
-                            <ColumnDefinition Width="40" />
-                            <ColumnDefinition Width="40" />
-                            <ColumnDefinition Width="40" />
-                            <ColumnDefinition Width="40" />
-                            <ColumnDefinition Width="40" />
-                            <ColumnDefinition Width="40" />
-                            <ColumnDefinition Width="40" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
 
                         <!-- 8 lignes -->
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="40" />
-                            <RowDefinition Height="40" />
-                            <RowDefinition Height="40" />
-                            <RowDefinition Height="40" />
-                            <RowDefinition Height="40" />
-                            <RowDefinition Height="40" />
-                            <RowDefinition Height="40" />
-                            <RowDefinition Height="40" />
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
 
                         <BindableLayout.ItemTemplate>
@@ -181,6 +182,7 @@
                         </BindableLayout.ItemTemplate>
 
                     </Grid>
+
                 </Border>
 
                 <Label Text="{Binding WhiteTakenPieces}"
@@ -194,39 +196,42 @@
             </Grid>
         </Border>
 
-        <Button
-            Text="&#x1F4BE;"
-            Grid.Row="2"
-            FontSize="20"
-            BackgroundColor="DodgerBlue"
-            CornerRadius="25"
-            WidthRequest="40"
-            HeightRequest="40"
-            Command="{Binding DownloadCommand}"
-            HorizontalOptions="Start"
-            VerticalOptions="End"
-            Shadow="{Shadow Brush=Black, Opacity=0.4, Radius=10}"
-            Margin="10,10,10,10"
-            Padding="5,5,5,10"
-            />
+        <Grid Grid.Row="1">
+            <Image Source="background.jpg" Aspect="AspectFill" />
+
+            <HorizontalStackLayout  Spacing="100"  Padding="20">
+                <Button
+                   Text="&#x1F4BE;"
+                   HorizontalOptions="Start"
+                   VerticalOptions="Center"
+                   FontSize="20"
+                   BackgroundColor="DodgerBlue"
+                   CornerRadius="25"
+                   WidthRequest="40"
+                   HeightRequest="40"
+                   Command="{Binding DownloadCommand}"
+                   Shadow="{Shadow Brush=Black, Opacity=0.4, Radius=10}"
+                   Margin="10,10,10,10"
+                   Padding="5,5,5,10"
+                   />
+                <Button 
+                   Text="↺"
+                   HorizontalOptions="End"
+                   VerticalOptions="Center"
+                   Command="{Binding ResetGameCommand}"
+                   BackgroundColor="#B22222"
+                   Shadow="{Shadow Brush=Black, Opacity=0.4, Radius=10}"
+                   TextColor="White"
+                   WidthRequest="40"
+                   HeightRequest="40"
+                   CornerRadius="25"
+                   FontSize="32"
+                   Margin="5,5,5,5"
+                   Padding="0,-5,0,0"
+                   />
+            </HorizontalStackLayout>
+        </Grid>
         
-        <Button 
-            Text="↺"
-            Grid.Row="2"
-            HorizontalOptions="End"
-            VerticalOptions="Center"
-            Margin="5,5,5,5"
-            Command="{Binding ResetGameCommand}"
-            BackgroundColor="#B22222"
-            Shadow="{Shadow Brush=Black, Opacity=0.4, Radius=10}"
-            TextColor="White"
-            WidthRequest="40"
-            HeightRequest="40"
-            CornerRadius="25"
-            FontSize="32"
-            Padding="0,-5,0,0"/>
-
-
-
+ 
     </Grid>
 </ContentPage>

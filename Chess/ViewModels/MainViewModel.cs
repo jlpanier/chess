@@ -1,5 +1,7 @@
 ﻿using Business;
 using Chess.Interfaces;
+using Chess.Views;
+using CommunityToolkit.Maui.Extensions;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DevExpress.Maui.Mvvm;
@@ -8,6 +10,7 @@ using Repository.Dbo;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Text;
+using static Business.Piece;
 
 namespace Chess.ViewModels
 {
@@ -148,7 +151,7 @@ namespace Chess.ViewModels
         /// <summary>
         /// Sélection d'un case de l'échiquier
         /// </summary>
-        public void Select(int index)
+        public async Task Select(int index)
         {
             var selected = GetSquare(index);
             if (Selected == null) // Aucune pièce pré-sélectionnée
@@ -161,27 +164,81 @@ namespace Chess.ViewModels
             }
             else
             {
-                if (Board.Move(Selected.Square, selected.Square))
+                if (Selected.Square.IsPromotion)
                 {
-                    string whiteTakenPieces = string.Empty;
-                    string blackTakenPieces = string.Empty;
-                    foreach (var piece in Board.Takens)
-                    {
-                        if (piece.IsWhite)
-                        {
-                            whiteTakenPieces += piece.ToPieceSymbol();
-                        }
-                        else
-                        {
-                            blackTakenPieces += piece.ToPieceSymbol();
-                        }
-                    }
-                    WhiteTakenPieces = whiteTakenPieces;
-                    BlackTakenPieces = blackTakenPieces;
-                 }
+                    ShowPromotionPopup(Selected, selected);
+                }
+                else
+                {
+                    Move(Selected.Square, selected.Square);
+                }
             }
 
-            Squares.ForEach(_ => _.Hint());
+            Squares.ForEach(_ => _.NotifyDataChanged());
+        }
+
+        /// <summary>
+        /// Déplacement d'une piecetype
+        /// </summary>
+        /// <param name="from"></param>
+        /// <param name="to"></param>
+        private void Move(Square from, Square to)
+        {
+            if (Board.Move(from, to))
+            {
+                TakenPieces();
+            }
+        }
+
+        /// <summary>
+        /// Affichage des pièces prises
+        /// </summary>
+        private void TakenPieces()
+        {
+            string whiteTakenPieces = string.Empty;
+            string blackTakenPieces = string.Empty;
+            foreach (var piece in Board.Takens)
+            {
+                if (piece.IsWhite)
+                {
+                    whiteTakenPieces += piece.ToPieceSymbol();
+                }
+                else
+                {
+                    blackTakenPieces += piece.ToPieceSymbol();
+                }
+            }
+            WhiteTakenPieces = whiteTakenPieces;
+            BlackTakenPieces = blackTakenPieces;
+        }
+
+        /// <summary>
+        /// Promotion d'un pion: choix de la piecetype à promouvoir
+        /// </summary>
+        /// <param name="from"></param>
+        /// <param name="to"></param>
+        private void ShowPromotionPopup(SquareViewModel from, SquareViewModel to)
+        {
+            Debug.Assert(Application.Current!=null);
+            Debug.Assert(Application.Current.Windows.Any());
+            var popup = new PromotionPopup(from, to, OnPromotionPiece);
+            foreach(var window in Application.Current.Windows)
+            {
+                window.Page!.ShowPopup(popup);
+            }
+        }
+
+        /// <summary>
+        /// Séleection de la pièce choisie pour la promotion
+        /// </summary>
+        /// <param name="piecetype"></param>
+        private void OnPromotionPiece(SquareViewModel from, SquareViewModel to, PieceType piecetype)
+        {
+            if (Board.Move(from.Square, to.Square, piecetype))
+            {
+                TakenPieces();
+            }
+            Squares.ForEach(_ => _.NotifyDataChanged());
         }
 
 
@@ -191,7 +248,7 @@ namespace Chess.ViewModels
         public void DoubleClick(int index)
         {
             Board.DoubleClick(GetSquare(index).Square);
-            Squares.ForEach(_ => _.Hint());
+            Squares.ForEach(_ => _.NotifyDataChanged());
         }
     }
 }
