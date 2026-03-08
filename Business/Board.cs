@@ -551,7 +551,11 @@ namespace Business
             var selected = Squares.FirstOrDefault(_ => _.IsSelected);
             if (selected == null) // Aucune piece sélectionnée
             {
-                if (square.Piece != null && Playing == square.Piece.Color)
+                if (square.Piece == null)
+                {
+                    square.IsWarning = !square.IsWarning;
+                }
+                else if (Playing == square.Piece.Color)
                 {
                     var moves = AuthorizedMoves(square);
                     foreach (var item in Squares)
@@ -562,28 +566,23 @@ namespace Business
                     }
                     square.Select();
                 }
-            }
-            else
-            {
-                var moves = AuthorizedMoves(selected);
-                var bestmove = moves.FirstOrDefault(_ => _.IsBestMove);
-                if (bestmove == null)
-                {
-                    moves.ForEach(_ => _.IsBestMove = _.Index == square.Index);
-                }
-                else if (bestmove.Index == square.Index)
-                {
-                    bestmove.IsBestMove = false;
-                }
-                else if (moves.Any(_ => _.Index == square.Index))
-                {
-                    square.IsBadMove = !square.IsBadMove;
-                }
                 else
                 {
                     square.IsWarning = !square.IsWarning;
                 }
-
+            }
+            else
+            {
+                var moves = AuthorizedMoves(selected);
+                var selectedmove = moves.FirstOrDefault(_ => _.Index == square.Index);
+                if (selectedmove!=null) // la case du double clic est sur un des mouvements possible
+                {
+                    moves.ForEach(_ => _.IsBestMove = _.Index == square.Index);
+                }
+                else // la case du double clic n'est pas sur un des mouvements possible
+                {
+                    square.IsWarning = !square.IsWarning;
+                }
             }
         }
 
