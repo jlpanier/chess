@@ -48,8 +48,6 @@ namespace Chess.Pages
                 sb.Append($"{sw.ElapsedMilliseconds} [{times}]");
                 // pas de NewGame car le refraichissement de la popup de promotion rafraichiraie cet écran
             }
-
         }
-
     }
 }

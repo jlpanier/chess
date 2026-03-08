@@ -126,13 +126,14 @@ namespace Chess.ViewModels
 
             var items = new List<SquareViewModel>();
             if(Board.Squares == null) return;
-            
+
+            Squares = new ObservableCollection<SquareViewModel>();
             foreach (var square in Board.Squares)
             {
-                items.Add(new SquareViewModel(this, square));
+                Squares.Add(new SquareViewModel(this, square));
             }
             sb.Append($"{sw.ElapsedMilliseconds} ");
-            Squares = new ObservableCollection<SquareViewModel>(items);
+            //Squares = new ObservableCollection<SquareViewModel>(items);
             sb.Append($"{sw.ElapsedMilliseconds} ");
         }
 
